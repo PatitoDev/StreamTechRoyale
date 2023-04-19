@@ -9,17 +9,17 @@ interface CreatorCardProps extends CreatorDto {
 const CreatorCard = ({ group, id, name, instagram, twitch, twitter, profileImgUrl, isLive}: CreatorCardProps) => (
     <Paper key={id} shadow="xs" p="md" w={350} h={90} bg="dark">
         <Flex align='center'>
-            <Avatar src={profileImgUrl} mr="sm" radius="xl" variant="filled" size='lg' display="inline-block" />
+            <Avatar alt={name} src={profileImgUrl} mr="sm" radius="xl" variant="filled" size='lg' display="inline-block" />
             <Stack align='flex-start' spacing={1} maw='25ch'>
                 <Title w={'100%'} truncate color="white" order={3}>{name}</Title>
                 <Flex gap={0.5}>
                     { twitter && (
-                        <Button target="_blank" component="a" href={`https://twitter.com/${twitter}`} variant='subtle' compact color='gray'>
+                        <Button aria-label="Twitter" target="_blank" component="a" href={`https://twitter.com/${twitter}`} variant='subtle' compact color='gray'>
                             <BsTwitter />
                         </Button>
                     )}
                     { twitch && (
-                        <Button target="_blank" component="a" href={`https://twitch.com/${twitch}`} variant='subtle' compact color='gray'>
+                        <Button aria-label="Twitch" target="_blank" component="a" href={`https://twitch.com/${twitch}`} variant='subtle' compact color='gray'>
                             <BsTwitch />
                         </Button>
                     )}

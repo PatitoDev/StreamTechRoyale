@@ -53,7 +53,7 @@ const PreTournament = () => {
             md: 150,
         }} mb={50}>
             <Stack align="center">
-                <Image src='logo.png' width={150} />
+                <Image alt="Stream Tech Royale" src='logo.png' width={150} />
                 <Title>Stream Tech Royale</Title>
                 <Text fz="xl">Fortnite edition</Text>
             </Stack>
@@ -81,9 +81,9 @@ const PreTournament = () => {
                     </Text>
                 </Box>
                 <Flex gap={20} wrap='wrap' mx="auto" mt={80} align='center' justify='center'>
-                    <Image width={200} src="/devtalles.png" />
-                    <Image width={200} src="/codealo-logo-white.png" />
-                    <Image width={200} src="/donweb azul.png" />
+                    <Image alt="dev talles" width={200} src="/devtalles.png" />
+                    <Image alt="codealo" width={200} src="/codealo-logo-white.png" />
+                    <Image alt="donweb" width={200} src="/donweb azul.png" />
                 </Flex>
             </Flex>
         </Box>
