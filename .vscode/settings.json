@@ -1,0 +1,10 @@
+{
+    "files.exclude": {
+        "**/secrets.ts": true
+    },
+    "cSpell.words": [
+        "fortnite",
+        "kelpato",
+        "streamtechroyale"
+    ]
+}

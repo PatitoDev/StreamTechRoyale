@@ -1,0 +1,9 @@
+{
+  "name": "@streamtechroyale/aws",
+  "version": "1.0.0",
+  "license": "MIT",
+  "scripts": {
+    "deploy:dev": "serverless deploy --stage dev",
+    "deploy:prd": "serverless deploy --stage prd"
+  }
+}
