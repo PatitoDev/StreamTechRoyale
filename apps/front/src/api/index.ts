@@ -1,7 +1,7 @@
 import { CreatorDto } from '@streamtechroyale/models';
 
 //const API_URL = 'http://localhost:8090/';
-const API_URL = 'http://vps-3229038-x.dattaweb.com/';
+const API_URL = 'https://api.streamtechroyale.com/';
 
 export interface ApiResponse<T> {
     data?: T,
