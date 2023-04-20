@@ -91,9 +91,21 @@ const PreTournament = () => {
         <Stack spacing={0} align="center">
             <Flex align="center" my={50}>
                 { creatorData?.data && (
-                    <Avatar variant="filled" size={60} color="teal" radius="xl">
-                        {creatorData.data.length}
-                    </Avatar>
+                    <Box
+                    bg="teal"
+                    sx={{
+                        borderRadius: '50%',
+                        width: '4em',
+                        height: '4em',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                    }}
+                    >
+                        <Text weight="bold" size="2em" color="white">
+                            {creatorData.data.length}
+                        </Text>
+                    </Box>
                 ) }
                 <Stack ml={10} spacing={0} >
                     <Title order={2}>Creadores</Title>
