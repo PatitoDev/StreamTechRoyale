@@ -1,5 +1,4 @@
-// TODO - get from env
-const env: 'dev' | 'prd' = 'dev';
+const env = process.env['env'] === 'prd' ? 'prd' : 'dev';
 
 const Tables = {
     clip: `streamtechroyale-${env}-Clip`,
