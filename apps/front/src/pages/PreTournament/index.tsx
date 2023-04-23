@@ -1,12 +1,14 @@
-import { Text, Button, Loader, Stack, Title, Avatar, Flex, Pagination, Box, Image } from "@mantine/core";
-import { useCallback, useEffect, useState } from "react";
+import { Text, Button, Loader, Stack, Title, Avatar, Flex, Pagination, Box, Image, Input, TextInput } from "@mantine/core";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Api, ApiResponse } from "../../api";
-import { CreatorDto } from "@streamtechroyale/models";
+import { ChannelsLiveEvent, CreatorDto } from "@streamtechroyale/models";
 import CreatorCard from '../../components/CreatorCard';
-import type { Engine, ISourceOptions } from "tsparticles-engine";
+import type { Engine } from "tsparticles-engine";
 import { loadFull } from "tsparticles";
 import Particles from "react-tsparticles";
 import { particleOptions } from "./particlesOptions";
+import { useWsContext } from "../../context/wsContext/useWsContext";
+import { BsSearch } from "react-icons/bs";
 
 const FORM_LINK = 'https://forms.gle/Kj2JRGjRrcS8Vb7c9';
 const ITEMS_PER_PAGE = 12;
@@ -24,21 +26,52 @@ const dateParsed = new Date(TOURNAMENT_DATE * 1000).toLocaleString(undefined, {
 
 const PreTournament = () => {
     const [page, setPage] = useState<number>(1);
-    const [creatorData, setCreatorData] = useState<ApiResponse<CreatorDto[]> | null>(null);
-    const totalPages = Math.ceil((creatorData?.data?.length ?? 1) / ITEMS_PER_PAGE);
+    const [creatorDataPreSearch, setCreatorData] = useState<ApiResponse<CreatorDto[]> | null>(null);
+    const [searchValue, setSearchValue] = useState<string>('');
+    const wsContext = useWsContext();
+    const [liveChannels, setLiveChannels] = useState<Array<CreatorDto>>([]);
+
+    const creatorData = (creatorDataPreSearch?.data ?? []).filter((creator) => {
+        const searchValueLowerCased = searchValue.toLowerCase();
+        return (
+            creator.name.toLowerCase().includes(searchValueLowerCased) ||
+            creator.instagram?.toLowerCase().includes(searchValueLowerCased) ||
+            creator.twitch?.toLowerCase().includes(searchValueLowerCased) ||
+            creator.tiktok?.toLowerCase().includes(searchValueLowerCased) ||
+            creator.youtube?.toLowerCase().includes(searchValueLowerCased) ||
+            creator.twitter?.toLowerCase().includes(searchValueLowerCased)
+        );
+    });
+    const totalPages = Math.ceil((creatorData.length ?? 1) / ITEMS_PER_PAGE);
     const start = (page - 1) * ITEMS_PER_PAGE;
-    const itemsToDisplay = (creatorData?.data ?? []).slice(start, start + ITEMS_PER_PAGE);
 
     useEffect(() => {
-        (() => (async () => {
+        wsContext.subscribeToEvent('channels-live', (event) => {
+            setLiveChannels((event as ChannelsLiveEvent).content);
+        });
+
+        (async () => {
             const resp = await Api.getCreators(); 
             setCreatorData(resp);
-        })())();
+        })();
     }, []);
 
     const particlesInit = useCallback(async (engine: Engine) => {
         await loadFull(engine);
     }, []);
+
+    const usersWithLive = useMemo(() => creatorData
+            .map((creator) => {
+                const isLive = liveChannels.find((liveChannel) => liveChannel.id === creator.id);
+                return {
+                    ...creator,
+                    isLive: !!isLive
+                }
+            })
+            .sort((prev, next) => (next.isLive ? 0 : -1))
+    , [liveChannels, creatorData]);
+
+    const itemsToDisplay = (usersWithLive).slice(start, start + ITEMS_PER_PAGE);
 
     return (
     <Box pb={150}>
@@ -90,7 +123,7 @@ const PreTournament = () => {
 
         <Stack spacing={0} align="center">
             <Flex align="center" my={50}>
-                { creatorData?.data && (
+                { creatorDataPreSearch?.data && (
                     <Box
                     bg="teal"
                     sx={{
@@ -103,7 +136,7 @@ const PreTournament = () => {
                     }}
                     >
                         <Text weight="bold" size="2em" color="white">
-                            {creatorData.data.length}
+                            {creatorDataPreSearch.data.length}
                         </Text>
                     </Box>
                 ) }
@@ -115,13 +148,17 @@ const PreTournament = () => {
 
             {!creatorData && ( <Loader />)}
 
-            <Flex 
+            <Flex
                 maw={1500}
                 mx={50}
                 gap={20} wrap={"wrap"} justify={"center"} align={"center"}>
-                {creatorData?.data && itemsToDisplay.map((data) => (
-                    <CreatorCard key={data.id} {...data} isLive={false} />
+
+                {itemsToDisplay.map((data) => (
+                    <CreatorCard key={data.id} {...data} isLive={data.isLive} />
                 ))}
+                {!itemsToDisplay.length && creatorDataPreSearch?.data && (
+                    <Text>No encontrado</Text>
+                )}
             </Flex>
             <Pagination mt={20} value={page} onChange={setPage} total={totalPages} />
         </Stack>
