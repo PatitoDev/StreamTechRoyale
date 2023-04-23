@@ -92,7 +92,7 @@ const PreTournament = () => {
             </Stack>
 
             <Stack align="center" spacing={0}>
-                <Text c="dimmed" fz="xl">{dateParsed}</Text>
+                <Text c="dark" fz="xl">{dateParsed}</Text>
                 <Button mt="md" size="lg" target="_blank" component="a" href={FORM_LINK} radius="md" variant="outline">
                     UNIRSE
                 </Button>
