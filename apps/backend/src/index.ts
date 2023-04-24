@@ -78,7 +78,9 @@ app.get('/creators', async (_, res) => {
             instagram: creator.instagram,
             twitch: creator.twitch,
             twitter: creator.twitter,
-            profileImgUrl: creator.profileImgUrl
+            profileImgUrl: creator.profileImgUrl,
+            tiktok: creator.tiktok,
+            youtube: creator.youtube
         } satisfies CreatorDto));
 
         res.send(JSON.stringify(creatorsDto));

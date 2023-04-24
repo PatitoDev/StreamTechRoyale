@@ -11,6 +11,7 @@ class TwitchAPI {
     private _client: ApiClient;
     private _liveChannels: Array<Creator>;
     private _onLiveChannelChange?: ((creator: Array<Creator>) => void) | undefined;
+    private _creators:Array<Creator> = [];
 
     constructor(onLiveChannelCallback?: (creators: Array<Creator>) => void) {
         this._authProvider = new AppTokenAuthProvider(SECRETS.twitch.clientId, SECRETS.twitch.extensionSecret);
@@ -19,6 +20,10 @@ class TwitchAPI {
         this._onLiveChannelChange = onLiveChannelCallback;
         setInterval(this.updateLiveChannels, TIME_BETWEEN_UPDATES);
         this.updateLiveChannels();
+
+        creatorRepository
+            .getCreators()
+            .then((creators) => this._creators = creators);
     }
 
     public getChannelInfo = async (name: string) => {
@@ -42,10 +47,8 @@ class TwitchAPI {
     };
 
     private updateLiveChannels = async () => {
-        // TODO - cache this
-        const creators = await creatorRepository.getCreators();
-        const liveCreators = [];
-        for (const creator of creators) {
+        const liveCreators:Array<Creator> = [];
+        for (const creator of this._creators) {
             if (!creator.twitch) continue;
             const resp = await this.getChannelInfo(creator.twitch);
             if (!resp) {
@@ -56,10 +59,17 @@ class TwitchAPI {
                 liveCreators.push(creator);
             }
         }
-        console.log(`Updated live channels. Live: ${liveCreators.length}`);
+
+        const isTheSame = (
+            this._liveChannels.length === liveCreators.length &&
+            this._liveChannels
+                .every(channel => liveCreators.find((liveCreator) => liveCreator.id === channel.id))
+        );
+
+        console.log(`Live channels changed: ${!isTheSame}`);
         this._liveChannels = liveCreators;
 
-        if (this._onLiveChannelChange) {
+        if (this._onLiveChannelChange && !isTheSame) {
             this._onLiveChannelChange(this._liveChannels);
         }
     };

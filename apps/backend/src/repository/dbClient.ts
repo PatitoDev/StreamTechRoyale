@@ -17,7 +17,7 @@ const marshallOptions = {
 
 const unmarshalledOptions = {
     // Whether to return numbers as a string instead of converting them to native JavaScript numbers.
-    wrapNumbers: false, // false, by default. // TODO - check if this works for us
+    wrapNumbers: false, // false, by default.
 };
 
 const client = DynamoDBDocument.from(internalClient, { marshallOptions, unmarshallOptions: unmarshalledOptions });
