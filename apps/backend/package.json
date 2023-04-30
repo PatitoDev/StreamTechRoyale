@@ -36,6 +36,7 @@
     "start": "ts-node-dev --respawn ./src/index.ts",
     "migrate": "ts-node-dev ./src/migrations/index.ts",
     "migrate:dev": "ts-node-dev ./src/migrations/index.ts",
+    "migrate-clips:dev": "ts-node ./src/migrations/clipMigrations.ts",
     "start:prd": "cross-env env=prd ts-node ./src/index.ts",
     "migrate:prd": "cross-env env=prd ts-node ./src/migrations/index.ts"
   }

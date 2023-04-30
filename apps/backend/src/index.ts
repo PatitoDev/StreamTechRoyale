@@ -3,8 +3,10 @@ import expressws from 'express-ws';
 import express from 'express';
 import creatorRepository from './repository/creatorRepository';
 import cors from 'cors';
-import { ChannelsLiveEvent, Creator, CreatorDto } from '@streamtechroyale/models';
+import { ChannelsLiveEvent, ClipChangeEvent, Creator, CreatorDto } from '@streamtechroyale/models';
 import TwitchApi from './twitchApi';
+import { clipRepository } from './repository/clipRepository';
+import { userClipLikedRepository } from './repository/userClipLikedRepository';
 
 const PORT = 8090;
 
@@ -88,6 +90,44 @@ app.get('/creators', async (_, res) => {
     } catch {
         res.sendStatus(500);
     }
+});
+
+app.get('/clips', async (_, res) => {
+    const clips = await clipRepository.getClips();
+    res.send(JSON.stringify(clips));
+});
+
+app.get('/user/me/likedClips', async (req, res) => {
+    const result = await userClipLikedRepository.get('TEST_USER');
+    res.send(JSON.stringify(result));
+});
+
+// TODO - get user from token
+app.post('/user/me/clip/:clipId/like', async (req, res) => {
+    const { clipId } = req.params;
+    const result = await clipRepository.increaseLikeByOne(clipId);
+    res.send(JSON.stringify(result));
+    for (const connection of connections) {
+        connection.send(JSON.stringify({
+            type: 'clip-change',
+            content: result
+        } satisfies ClipChangeEvent));
+    }
+    userClipLikedRepository.create(clipId, 'TEST_USER');
+});
+
+// TODO - get user from token
+app.delete('/user/me/clip/:clipId/like', async (req, res) => {
+    const { clipId } = req.params;
+    const result = await clipRepository.decreaseLikeByOne(clipId);
+    res.send(JSON.stringify(result));
+    for (const connection of connections) {
+        connection.send(JSON.stringify({
+            type: 'clip-change',
+            content: result
+        } satisfies ClipChangeEvent));
+    }
+    userClipLikedRepository.destroy(clipId, 'TEST_USER');
 });
 
 app.listen(PORT, () => {

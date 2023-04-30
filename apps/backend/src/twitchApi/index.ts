@@ -6,6 +6,7 @@ import { Creator } from '@streamtechroyale/models';
 
 const TIME_BETWEEN_UPDATES = 30000;
 
+
 class TwitchAPI {
     private _authProvider: AppTokenAuthProvider;
     private _client: ApiClient;
@@ -44,6 +45,18 @@ class TwitchAPI {
 
     public getLiveChannels = async () => {
         return this._liveChannels;
+    };
+
+    public getClipsFromChannel = async (channel: string) => {
+        const user = await this.getUserInfo(channel);
+        if (!user) {
+            console.log('user not found');
+            return;
+        }
+        // TODO - set date filter
+        const resp = await this._client.clips.getClipsForBroadcaster(user.id);
+        // TODO - start pagination crawl
+        return resp.data;
     };
 
     private updateLiveChannels = async () => {

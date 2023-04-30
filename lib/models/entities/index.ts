@@ -17,6 +17,19 @@ export interface Creator {
 export interface Clip {
     id: string,
     name: string,
-    clippedBy: string
+    creatorId: string,
+    clippedByName: string,
+    clippedById: string,
     likes: number
+}
+
+export interface UserClipLiked {
+    /**
+     * Partition Key
+     */
+    userId: string,
+    /**
+     * Sort Key
+     */
+    clipId: string
 }

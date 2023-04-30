@@ -7,6 +7,7 @@ params:
   default:
     Creator: ${self:service}-${sls:stage}-Creator
     Clip: ${self:service}-${sls:stage}-Clip
+    UserClipLiked: ${self:service}-${sls:stage}-UserClipLiked
     StaticBucket: ${self:service}-${sls:stage}-StaticBucket
 
 provider:
@@ -39,6 +40,7 @@ resources:
     Creator:
       Type: AWS::DynamoDB::Table
       Properties:
+        TableName: ${param:Creator}
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S
@@ -46,11 +48,10 @@ resources:
         KeySchema:
           - AttributeName: id
             KeyType: HASH
-        GlobalSecondaryIndexes:
-        TableName: ${param:Creator}
     Clip:
       Type: AWS::DynamoDB::Table
       Properties:
+        TableName: ${param:Clip}
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S
@@ -58,5 +59,18 @@ resources:
         KeySchema:
           - AttributeName: id
             KeyType: HASH
-        GlobalSecondaryIndexes:
-        TableName: ${param:Clip}
+    UserClipLiked:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${param:UserClipLiked}
+        AttributeDefinitions:
+          - AttributeName: userId
+            AttributeType: S
+          - AttributeName: clipId
+            AttributeType: S
+        BillingMode: PAY_PER_REQUEST
+        KeySchema:
+          - AttributeName: userId
+            KeyType: HASH
+          - AttributeName: clipId
+            KeyType: RANGE
