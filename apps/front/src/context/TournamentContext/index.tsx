@@ -19,7 +19,8 @@ export const TournamentContextProvider = ({ children }: {children: React.ReactNo
     const { subscribeToEvent, desubscribeToEvent } = useWsContext();
 
     useEffect(() => {
-        const channelsLiveCallback = (e: EventBase<"channels-live", unknown>) => {
+        const channelsLiveCallback = (e: EventBase) => {
+            if (e.type !== 'channels-live') return;
             const resp = (e as ChannelsLiveEvent).content;
             setLiveChannels(resp);
         }

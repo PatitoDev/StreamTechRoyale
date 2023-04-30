@@ -59,6 +59,26 @@ class TwitchAPI {
         return resp.data;
     };
 
+    public validateToken = async (token: string) => {
+        const headers = new Headers();
+        headers.append('Authorization', `OAuth ${token}`);
+        const resp = await fetch('https://id.twitch.tv/oauth2/validate', {
+            headers
+        });
+        if (!resp.ok) throw new Error();
+        const data = (await resp.json()) as {
+            client_id: string,
+            login: string,
+            user_id: string,
+            expires_in: number
+        };
+
+        if (data.client_id !== SECRETS.twitch.clientId) {
+            throw new Error();
+        }
+        return data;
+    };
+
     private updateLiveChannels = async () => {
         const liveCreators:Array<Creator> = [];
         for (const creator of this._creators) {

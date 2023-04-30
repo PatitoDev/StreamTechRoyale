@@ -1,8 +1,8 @@
 import { MantineProvider } from '@mantine/core';
-import PreTournament from './pages/PreTournament'
 import { WsContextProvider } from './context/wsContext';
 import Tournament from './pages/Tournament';
 import { TournamentContextProvider } from './context/TournamentContext';
+import { AuthProvider } from './context/AuthContext';
 
 const App = () => (
     <MantineProvider theme={{
@@ -23,11 +23,13 @@ const App = () => (
         }
       }
     }} >
-      <WsContextProvider>
-        <TournamentContextProvider>
-            <Tournament />
-        </TournamentContextProvider>
-      </WsContextProvider>
+      <AuthProvider>
+        <WsContextProvider>
+          <TournamentContextProvider>
+              <Tournament />
+          </TournamentContextProvider>
+        </WsContextProvider>
+      </AuthProvider>
     </MantineProvider>
 );
 

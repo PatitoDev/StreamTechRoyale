@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Api } from "../../api";
 import ChannelClip from "./ChannelClip";
 import { useWsContext } from "../../context/wsContext/useWsContext";
+import { useAuth } from "../../context/AuthContext/useAuth";
 
 const ITEMS_PER_PAGE = 12;
 
@@ -12,6 +13,7 @@ interface ClipsWithLikeInformation extends Clip {
 }
 
 const ClipsTab = () => {
+    const { auth, authenticate } = useAuth();
     const { subscribeToEvent } = useWsContext();
     const [likedClips, setLikedClips] = useState<Array<string>>([]);
     const [clips, setClips] = useState<Array<Clip>>([]);
@@ -45,23 +47,37 @@ const ClipsTab = () => {
             if (clipsResp.data) {
                 setClips(clipsResp.data);
             }
+        })()
+    }, []);
 
-            const likedClipsResp = await Api.getLikedClips();
+    useEffect(() => {
+        (async () => {
+            if (!auth) {
+                setLikedClips([]);
+                return;
+            };
+
+            const likedClipsResp = await Api.getLikedClips(auth.token);
             if (likedClipsResp.data) {
                 setLikedClips(likedClipsResp.data);
             }
         })()
-    }, []);
+    }, [auth]);
 
     const onLikedClip = useCallback(async (clip: ClipsWithLikeInformation) => {
+        if (!auth) {
+            authenticate();
+            return;
+        }
+
         if (!clip.hasLiked) {
-            await Api.likeClip(clip.id);
+            await Api.likeClip(clip.id, auth.token);
             setLikedClips((prev) => ([...prev, clip.id]));
             return;
         }
-        await Api.dislikeClip(clip.id);
+        await Api.dislikeClip(clip.id, auth.token);
         setLikedClips((prev) => (prev.filter((item) => item !== clip.id)));
-    }, [])
+    }, [auth])
 
     return (
         <Flex direction="column" align="center">

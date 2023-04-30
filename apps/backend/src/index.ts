@@ -1,12 +1,13 @@
 import WebSocket from 'ws';
 import expressws from 'express-ws';
-import express from 'express';
+import express, { Request, Response } from 'express';
 import creatorRepository from './repository/creatorRepository';
 import cors from 'cors';
-import { ChannelsLiveEvent, ClipChangeEvent, Creator, CreatorDto } from '@streamtechroyale/models';
+import { ChannelsLiveEvent, ClipChangeEvent, Creator, CreatorDto, UserDto } from '@streamtechroyale/models';
 import TwitchApi from './twitchApi';
 import { clipRepository } from './repository/clipRepository';
 import { userClipLikedRepository } from './repository/userClipLikedRepository';
+import {AuthenticationException} from './exceptions/authenticationException';
 
 const PORT = 8090;
 
@@ -98,37 +99,85 @@ app.get('/clips', async (_, res) => {
 });
 
 app.get('/user/me/likedClips', async (req, res) => {
-    const result = await userClipLikedRepository.get('TEST_USER');
-    res.send(JSON.stringify(result));
+    try { 
+        const userData = await getTokenDetails(req);
+        const result = await userClipLikedRepository.get(userData.user_id);
+        res.send(JSON.stringify(result));
+    } catch (err) {
+        handleError(err, res);
+    }
 });
 
-// TODO - get user from token
+// TODO - User like validation
 app.post('/user/me/clip/:clipId/like', async (req, res) => {
-    const { clipId } = req.params;
-    const result = await clipRepository.increaseLikeByOne(clipId);
-    res.send(JSON.stringify(result));
-    for (const connection of connections) {
-        connection.send(JSON.stringify({
-            type: 'clip-change',
-            content: result
-        } satisfies ClipChangeEvent));
+    try {
+        const userData = await getTokenDetails(req);
+        const { clipId } = req.params;
+        const result = await clipRepository.increaseLikeByOne(clipId);
+        res.send(JSON.stringify(result));
+        for (const connection of connections) {
+            connection.send(JSON.stringify({
+                type: 'clip-change',
+                content: result
+            } satisfies ClipChangeEvent));
+        }
+        userClipLikedRepository.create(clipId, userData.user_id);
+    } catch (err) {
+        handleError(err, res);
     }
-    userClipLikedRepository.create(clipId, 'TEST_USER');
 });
 
-// TODO - get user from token
 app.delete('/user/me/clip/:clipId/like', async (req, res) => {
-    const { clipId } = req.params;
-    const result = await clipRepository.decreaseLikeByOne(clipId);
-    res.send(JSON.stringify(result));
-    for (const connection of connections) {
-        connection.send(JSON.stringify({
-            type: 'clip-change',
-            content: result
-        } satisfies ClipChangeEvent));
+    try {
+        const userData = await getTokenDetails(req);
+        const { clipId } = req.params;
+        const result = await clipRepository.decreaseLikeByOne(clipId);
+        res.send(JSON.stringify(result));
+        for (const connection of connections) {
+            connection.send(JSON.stringify({
+                type: 'clip-change',
+                content: result
+            } satisfies ClipChangeEvent));
+        }
+        userClipLikedRepository.destroy(clipId, userData.user_id);
+    } catch (err) {
+        handleError(err, res);
     }
-    userClipLikedRepository.destroy(clipId, 'TEST_USER');
 });
+
+app.get('/auth', async (req, res) => {
+    try {
+        const userData = await getTokenDetails(req);
+        const responseData: UserDto = {
+            id: userData.user_id,
+            expires: userData.expires_in,
+            name: userData.login,
+        };
+        res.send(JSON.stringify(responseData));
+    } catch (err) {
+        handleError(err, res);
+    }
+});
+
+const handleError = (err: unknown, res: Response) => {
+    if (err instanceof AuthenticationException) {
+        res.sendStatus(401);
+        return;
+    }
+    res.sendStatus(500);
+};
+
+const getTokenDetails = async (req: Request) => {
+    try {
+        const authorization = req.headers.authorization;
+        if (!authorization) throw new Error();
+        const token = authorization.replace('Bearer ', '');
+        const userData = await twitchApi.validateToken(token);
+        return userData;
+    } catch {
+        throw new AuthenticationException();
+    }
+};
 
 app.listen(PORT, () => {
     console.log(`Started server at port:${PORT}`);
