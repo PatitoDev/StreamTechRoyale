@@ -3,11 +3,13 @@ import expressws from 'express-ws';
 import express, { Request, Response } from 'express';
 import creatorRepository from './repository/creatorRepository';
 import cors from 'cors';
-import { ChannelsLiveEvent, ClipChangeEvent, Creator, CreatorDto, UserDto } from '@streamtechroyale/models';
+import { ChannelsLiveEvent, ClipChangeEvent, Creator, CreatorDto } from '@streamtechroyale/models';
 import TwitchApi from './twitchApi';
 import { clipRepository } from './repository/clipRepository';
 import { userClipLikedRepository } from './repository/userClipLikedRepository';
-import {AuthenticationException} from './exceptions/authenticationException';
+import { AuthenticationException } from './exceptions/authenticationException';
+import * as jose from 'jose';
+import SECRETS from '@streamtechroyale/secrets';
 
 const PORT = 8090;
 
@@ -100,8 +102,8 @@ app.get('/clips', async (_, res) => {
 
 app.get('/user/me/likedClips', async (req, res) => {
     try { 
-        const userData = await getTokenDetails(req);
-        const result = await userClipLikedRepository.get(userData.user_id);
+        const userId = await validateAuth(req);
+        const result = await userClipLikedRepository.get(userId);
         res.send(JSON.stringify(result));
     } catch (err) {
         handleError(err, res);
@@ -111,7 +113,7 @@ app.get('/user/me/likedClips', async (req, res) => {
 // TODO - User like validation
 app.post('/user/me/clip/:clipId/like', async (req, res) => {
     try {
-        const userData = await getTokenDetails(req);
+        const userId = await validateAuth(req);
         const { clipId } = req.params;
         const result = await clipRepository.increaseLikeByOne(clipId);
         res.send(JSON.stringify(result));
@@ -121,7 +123,7 @@ app.post('/user/me/clip/:clipId/like', async (req, res) => {
                 content: result
             } satisfies ClipChangeEvent));
         }
-        userClipLikedRepository.create(clipId, userData.user_id);
+        userClipLikedRepository.create(clipId, userId);
     } catch (err) {
         handleError(err, res);
     }
@@ -129,7 +131,7 @@ app.post('/user/me/clip/:clipId/like', async (req, res) => {
 
 app.delete('/user/me/clip/:clipId/like', async (req, res) => {
     try {
-        const userData = await getTokenDetails(req);
+        const userId = await validateAuth(req);
         const { clipId } = req.params;
         const result = await clipRepository.decreaseLikeByOne(clipId);
         res.send(JSON.stringify(result));
@@ -139,7 +141,7 @@ app.delete('/user/me/clip/:clipId/like', async (req, res) => {
                 content: result
             } satisfies ClipChangeEvent));
         }
-        userClipLikedRepository.destroy(clipId, userData.user_id);
+        userClipLikedRepository.destroy(clipId, userId);
     } catch (err) {
         handleError(err, res);
     }
@@ -147,13 +149,23 @@ app.delete('/user/me/clip/:clipId/like', async (req, res) => {
 
 app.get('/auth', async (req, res) => {
     try {
-        const userData = await getTokenDetails(req);
-        const responseData: UserDto = {
-            id: userData.user_id,
-            expires: userData.expires_in,
-            name: userData.login,
-        };
-        res.send(JSON.stringify(responseData));
+        const encryptionKey = new TextEncoder().encode(SECRETS.jwt.secret);
+        const authorization = req.headers.authorization;
+        if (!authorization) throw new Error();
+        const twitchCode = authorization.replace('Bearer ', '');
+        const userData = await twitchApi.validateToken(twitchCode);
+        const jwt = await new jose.SignJWT({
+            ...userData,
+            aud: SECRETS.jwt.audience,
+            iss: SECRETS.jwt.issuer
+        })
+            .setProtectedHeader({
+                alg: 'HS256'
+            })
+            .setExpirationTime('5h')
+            .sign(encryptionKey);
+
+        res.send(JSON.stringify({ token: jwt, user: userData }));
     } catch (err) {
         handleError(err, res);
     }
@@ -167,13 +179,19 @@ const handleError = (err: unknown, res: Response) => {
     res.sendStatus(500);
 };
 
-const getTokenDetails = async (req: Request) => {
+const validateAuth = async (req: Request):Promise<string> => {
     try {
         const authorization = req.headers.authorization;
         if (!authorization) throw new Error();
         const token = authorization.replace('Bearer ', '');
-        const userData = await twitchApi.validateToken(token);
-        return userData;
+        const encryptionKey = new TextEncoder().encode(SECRETS.jwt.secret);
+        const jwtVerifyResult = await jose.jwtVerify(token, encryptionKey, {
+            audience: SECRETS.jwt.audience,
+            issuer: SECRETS.jwt.issuer,
+        });
+        const id = jwtVerifyResult.payload['id'];
+        if (typeof id !== 'string') throw new Error();
+        return id;
     } catch {
         throw new AuthenticationException();
     }

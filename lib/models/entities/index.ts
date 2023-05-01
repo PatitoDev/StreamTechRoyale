@@ -20,7 +20,8 @@ export interface Clip {
     creatorId: string,
     clippedByName: string,
     clippedById: string,
-    likes: number
+    likes: number,
+    thumbnailUrl: string
 }
 
 export interface UserClipLiked {

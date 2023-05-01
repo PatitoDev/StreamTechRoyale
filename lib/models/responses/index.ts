@@ -7,5 +7,5 @@ export interface ClipDto extends Clip {}
 export interface UserDto {
     id: string,
     name: string,
-    expires: number,
+    profilePicture?: string | undefined
 }

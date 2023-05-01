@@ -3,7 +3,7 @@ import { particleOptions } from "../../particlesOptions";
 import { useCallback } from "react";
 import { loadFull } from "tsparticles";
 import type { Engine } from "tsparticles-engine";
-import { Box, Title, Text, Tabs, Flex, Button } from "@mantine/core";
+import { Box, Title, Text, Tabs, Flex, Button, Anchor, Avatar } from "@mantine/core";
 import LiveChannelsTab from "../../components/LiveChannelsTab";
 import ClipsTab from "../../components/ClipsTab";
 import { config } from "../../config";
@@ -35,12 +35,15 @@ const Tournament = () => {
 
             <Box ml="auto" mr="1em">
                 { auth ? (
-                    <>
-                        <Text> {auth.user.name} </Text>
-                        <Button color="blue" onClick={logOut} >
-                            Log Out
-                        </Button>
-                    </>
+                    <Flex sx={{ alignItems: 'center' }}>
+                        <Avatar mr="sm" size="lg" src={auth.user.profilePicture} />
+                        <Flex direction="column" align="flex-start">
+                            <Text> {auth.user.name} </Text>
+                            <Anchor component="button" color="blue" onClick={logOut} >
+                                Log Out
+                            </Anchor>
+                        </Flex>
+                    </Flex>
                 ) : (
                     <Button color="blue" component="a" href={`${config.authUrl}`} >
                         Twitch Login

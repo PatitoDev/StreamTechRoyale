@@ -1,3 +1,4 @@
+import { Clip } from '@streamtechroyale/models';
 import { clipRepository } from '../repository/clipRepository';
 import TwitchAPI from '../twitchApi';
 
@@ -14,8 +15,9 @@ import TwitchAPI from '../twitchApi';
         clippedByName: clip.creatorDisplayName,
         id: clip.id,
         name: clip.title,
-        likes: 0
-    }));
+        likes: 0,
+        thumbnailUrl: clip.thumbnailUrl
+    } satisfies Clip));
 
     for (const clip of mappedClips) {
         await clipRepository.putClip(clip);

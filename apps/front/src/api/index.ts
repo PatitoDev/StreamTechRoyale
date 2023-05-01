@@ -56,11 +56,15 @@ const getLikedClips = async (token: string):Promise<ApiResponse<Array<string>>> 
     return { data: data.map(({clipId}) => clipId), status: resp.status }
 }
 
-const validateToken = async (token: string):Promise<ApiResponse<UserDto>> => {
+const validateToken = async (token: string):Promise<ApiResponse<
+    { user: UserDto, token: string }
+>> => {
     const resp = await fetch(API_URL + 'auth', {
         headers: createHeaders(token),
     });
-    const userData = (await resp.json()) as UserDto;
+    const userData = (await resp.json()) as {
+        user: UserDto, token: string,
+    };
     return { data: userData, status: resp.status };
 }
 

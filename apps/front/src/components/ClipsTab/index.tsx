@@ -82,10 +82,6 @@ const ClipsTab = () => {
     return (
         <Flex direction="column" align="center">
             <Text weight="bold">El clip mas votado ganara un premio al final del torneo</Text>
-            <Flex mt="0.5em">
-                <TextInput mr="0.5em" />
-                <Button>Enviar</Button>
-            </Flex>
             <Flex my="1em" justify="center" direction="row" wrap="wrap" gap="1em">
                 {
                     itemsToDisplay.map((clip) => (

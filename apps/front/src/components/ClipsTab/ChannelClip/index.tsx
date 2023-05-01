@@ -1,4 +1,4 @@
-import { Button, Flex, Text, UnstyledButton } from "@mantine/core";
+import { Button, Flex, Text, UnstyledButton, Image, Box } from "@mantine/core";
 import { Clip } from "@streamtechroyale/models";
 import { useEffect, useState } from "react";
 import { BsHandThumbsUp, BsHandThumbsUpFill, BsPlay } from "react-icons/bs";
@@ -17,16 +17,27 @@ const ChannelClip = ({ clip, liked, onLikedClip }: ChannelClipProps) => {
     return (
         <Flex maw={500} direction="column">
             { isActive ? (
-                <TwitchClip width={500} height={300} clip={clip.id} />
+                <TwitchClip height={272} width={480} clip={clip.id} />
             ) : (
                 <UnstyledButton 
-                    bg="dark"
-                    h={300}
-                    w={500}
+                    h={272}
+                    w={480}
                     onClick={() => setIsActive(true)} 
-                    sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+                    sx={{ 
+                        overflow: 'hidden',
+                        borderRadius: '5px',
+                        position: 'relative',
+                        display: 'flex', 
+                        justifyContent: 'center', 
+                        alignItems: 'center' }}
                 >
-                    <BsPlay color="white" size="2em" />
+                    <Flex w="3em" h="3em" sx={{ borderRadius: '5px' }} bg="#25262bd1">
+                        <BsPlay style={{margin: 'auto'}} color="white" size="2em" />
+                    </Flex>
+                    <Image 
+                        src={clip.thumbnailUrl} width="100%" height="100%" 
+                        sx={{ position: 'absolute', zIndex: -1 }}
+                    />
                 </UnstyledButton>
 
             )}

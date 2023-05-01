@@ -40,10 +40,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 if (key === 'access_token' && value) {
                     const result = await Api.validateToken(value);
                     if (result.data) {
-                        setAuth({
-                            token: value,
-                            user: result.data
-                        });
+                        setAuth(result.data);
                         setHash('');
                     }
                     // TODO - throw error

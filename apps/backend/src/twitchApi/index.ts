@@ -2,7 +2,7 @@ import SECRETS from '@streamtechroyale/secrets';
 import { ApiClient } from '@twurple/api';
 import { AppTokenAuthProvider } from '@twurple/auth';
 import creatorRepository from '../repository/creatorRepository';
-import { Creator } from '@streamtechroyale/models';
+import { Creator, UserDto } from '@streamtechroyale/models';
 
 const TIME_BETWEEN_UPDATES = 30000;
 
@@ -59,7 +59,7 @@ class TwitchAPI {
         return resp.data;
     };
 
-    public validateToken = async (token: string) => {
+    public validateToken = async (token: string):Promise<UserDto> => {
         const headers = new Headers();
         headers.append('Authorization', `OAuth ${token}`);
         const resp = await fetch('https://id.twitch.tv/oauth2/validate', {
@@ -76,7 +76,13 @@ class TwitchAPI {
         if (data.client_id !== SECRETS.twitch.clientId) {
             throw new Error();
         }
-        return data;
+
+        const twitchUser = await this._client.users.getUserById(data.user_id);
+        return {
+            id: data.user_id,
+            name:  twitchUser?.displayName ?? data.login,
+            profilePicture: twitchUser?.profilePictureUrl
+        } satisfies UserDto;
     };
 
     private updateLiveChannels = async () => {
