@@ -1,3 +1,4 @@
+import { Config } from '../config';
 import SECRETS from '@streamtechroyale/secrets';
 import { ApiClient } from '@twurple/api';
 import { AppTokenAuthProvider } from '@twurple/auth';
@@ -81,7 +82,8 @@ class TwitchAPI {
         return {
             id: data.user_id,
             name:  twitchUser?.displayName ?? data.login,
-            profilePicture: twitchUser?.profilePictureUrl
+            profilePicture: twitchUser?.profilePictureUrl,
+            isAdmin: Config.adminId.includes(data.user_id)
         } satisfies UserDto;
     };
 

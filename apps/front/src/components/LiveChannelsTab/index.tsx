@@ -1,104 +1,94 @@
-import { CreatorDto } from "@streamtechroyale/models";
-import { useEffect, useState } from "react";
-import { Api } from "../../api";
-import CreatorCard from "../CreatorCard";
-import { Avatar, Box, Button, Checkbox, Flex, Pagination, Text, TextInput } from "@mantine/core";
-import { TwitchEmbed } from "react-twitch-embed";
-import { useTournamentContext } from "../../context/TournamentContext/useTournamentContext";
+import { CreatorDto } from '@streamtechroyale/models';
+import { useEffect, useState } from 'react';
+import { Api } from '../../api';
+import CreatorCard from '../CreatorCard';
+import { Avatar, Button, Checkbox, Flex, Pagination, Text, TextInput } from '@mantine/core';
+import { TwitchEmbed } from 'react-twitch-embed';
+import { useTournamentContext } from '../../context/TournamentContext/useTournamentContext';
+import { useStyles } from './styles';
+import RepresentationModal from './RepresentationModal';
+import { useDisclosure } from '@mantine/hooks';
+import { useAuth } from '../../context/AuthContext/useAuth';
+import CreatorList from './CreatorList';
 
-const ITEMS_PER_PAGE = 10;
 
 const LiveChannelsTab = () => {
+    const { auth } = useAuth();
+    const [opened, { open, close}] = useDisclosure(false);
+    const { classes } = useStyles();
     const { creators } = useTournamentContext();
     const [selectedCreator, setSelectedCreator] = useState<CreatorDto | null>(null);
-    const [page, setPage] = useState<number>(1);
-    const [searchValue, setSearchValue] = useState<string>('');
 
-    const creatorsPostSearch = creators
-        .filter(creator => {
-            const searchValueLowercased = searchValue.toLowerCase();
-            return creator.name.toLowerCase().includes(searchValueLowercased) ||
-            creator.twitch?.toLowerCase().includes(searchValueLowercased) ||
-            creator.twitter?.toLowerCase().includes(searchValueLowercased) ||
-            creator.youtube?.toLowerCase().includes(searchValueLowercased) ||
-            creator.tiktok?.toLowerCase().includes(searchValueLowercased) ||
-            creator.instagram?.toLowerCase().includes(searchValueLowercased)
-        });
-
-    const totalPages = Math.ceil((creatorsPostSearch.length ?? 1) / ITEMS_PER_PAGE);
-    const start = (page - 1) * ITEMS_PER_PAGE;
-    const itemsToDisplay = (creatorsPostSearch).slice(start, start + ITEMS_PER_PAGE);
-
-    useEffect(() => {
-        if (selectedCreator === null && creators.length){
-            setSelectedCreator(creators[0]);
-        }
-    }, [creators]);
+    const userRepsentedBy = creators.find((item) => item.id === auth?.representation?.creatorId);
 
     return (
-    <Flex h="80vh" sx={{ width: '100%' }}>
-        <Flex px="0.5em" direction="column" gap="md" sx={{ overflow: 'auto', minWidth: '373px', width: '373px' }}>
-            <TextInput 
-                label="Buscar"
-                value={searchValue}
-                onChange={(e) => {
-                    setPage(1);
-                    setSearchValue(e.target.value)
-                }}
-            />
-            <Checkbox
-                label="Ocular muertos"
-            />
-            { !itemsToDisplay.length && (
-                <Text align="center" weight="bold">Creador no fue encontrado</Text>
+        <Flex 
+            direction={{
+                sm: 'row',
+                base: 'column-reverse',
+            }}
+            h={{
+                sm: '80vh',
+                base: 'auto'
+            }} sx={{ width: '100%' }}>
+            {selectedCreator && (
+                <RepresentationModal creator={selectedCreator} centered opened={opened} onClose={close} title="Repseren" />
             )}
-            { itemsToDisplay.map((item) => (
-                    <CreatorCard key={item.id} selected={item.id === selectedCreator?.id} creator={item} isLive={item.isLive} onCreatorClick={() => {
-                        setSelectedCreator(item)
-                    }} />
-                ))
-            }
-            <Pagination mx="auto" total={totalPages} value={page} onChange={(newPage) => setPage(newPage)} />
-        </Flex>
+            <CreatorList onSelectedCreatorChange={setSelectedCreator} selectedCreator={selectedCreator} />
 
-        <Flex direction="column" px="md" sx={{ flex: '1'}}>
-            <Flex mb="0.5em" px="0.5em" align="center">
-                <Button mr="1em" >Apoyar Streamer</Button>
-                <Text weight="bold">
+            <Flex 
+                mih={{
+                    sm: 'auto',
+                    base: '42em'
+                }}
+                direction="column" px="md" sx={{ flex: '1'}}>
+                <Flex mb="0.5em" px="0.5em" align="center">
+                    {!auth?.representation && (
+                        <>
+                            <Button mr="1em" onClick={open} >Apoyar Streamer</Button>
+                            <Text weight="bold">
                     Apoya a tu creador favorito y si gana obtendras la oportunidad de ganar premios. 
         Solo puedes apoyar un streamer/equipo por ronda
-                </Text>
-            </Flex>
-            <Flex sx={{ flex: '1 100%', borderRadius: '3px', overflow: 'hidden'}} direction="column">
-                <Text
-                    weight="bold"
-                    color="white"
-                    bg="dark"
-                    p="0.5em 1em"
-                >
-                    <Avatar 
-                        sx={{verticalAlign: 'middle'}}
-                        alt={selectedCreator?.name} 
-                        src={selectedCreator?.profileImgUrl} 
-                        mr="sm" radius="xl" 
-                        variant="filled" 
-                        size='sm' 
-                        display="inline-block" 
-                    />
-                    {selectedCreator?.name ?? 'Loading...'}
-                </Text>
+                            </Text>
+                        </>
+                    )}
+                    {userRepsentedBy && (
+                        <Text>
+                            {userRepsentedBy.name} te esta representando
+                        </Text>
+                    )}
+                </Flex>
+                <Flex sx={{ flex: '1 100%', borderRadius: '3px', overflow: 'hidden'}} direction="column">
+                    <Text
+                        weight="bold"
+                        color="white"
+                        bg="dark"
+                        p="0.5em 1em"
+                    >
+                        <Avatar 
+                            sx={{verticalAlign: 'middle'}}
+                            alt={selectedCreator?.name} 
+                            src={selectedCreator?.profileImgUrl} 
+                            mr="sm" radius="xl" 
+                            variant="filled" 
+                            size='sm' 
+                            display="inline-block" 
+                        />
+                        {selectedCreator?.name ?? 'Loading...'}
+                    </Text>
 
-                {selectedCreator && (
-                    <TwitchEmbed 
-                        channel={selectedCreator?.twitch}
-                        width="100%"
-                        height={"100%"}
-                    />
-                )}
+                    {selectedCreator && (
+                        <TwitchEmbed 
+                            className={classes.TwitchContainer}
+                            channel={selectedCreator?.twitch}
+                            width="100%"
+                            height={''}
+                        />
+                    )}
+                </Flex>
             </Flex>
         </Flex>
-    </Flex>
     );
-}
+};
 
 export default LiveChannelsTab;

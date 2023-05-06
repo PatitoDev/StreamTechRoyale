@@ -1,19 +1,18 @@
-import { Avatar, Badge, Box, Button, Flex, Paper, Stack, Title, UnstyledButton } from "@mantine/core";
-import { CreatorDto } from "@streamtechroyale/models";
-import { BsCaretRight, BsTiktok, BsTwitch, BsTwitter, BsYoutube } from "react-icons/bs";
+import { Avatar, Badge, Button, Flex, Paper, Stack, Title, UnstyledButton } from '@mantine/core';
+import { BsCaretRight, BsTiktok, BsTwitch, BsTwitter, BsYoutube } from 'react-icons/bs';
+import { CreatorWithLiveIndicator } from '../../context/TournamentContext';
 
 interface CreatorCardProps {
-    creator: CreatorDto,
-    isLive: boolean,
+    creator: CreatorWithLiveIndicator,
     onCreatorClick?: () => void,
     selected?: boolean,
 }
 
-const CreatorCard = ({ isLive, creator, onCreatorClick, selected}: CreatorCardProps) => (
+const CreatorCard = ({ creator, onCreatorClick, selected }: CreatorCardProps) => (
     <Paper key={creator.id} shadow="xs" w={350} mih={90} h={90} bg="dark" sx={{
-            boxShadow: selected ? '0 0 0 4px #12b886' : 'none',
-            display: 'flex', alignItems: 'center', overflow: 'hidden'
-        }}>
+        boxShadow: selected ? '0 0 0 4px #12b886' : 'none',
+        display: 'flex', alignItems: 'center', overflow: 'hidden'
+    }}>
         <Avatar m="md" alt={creator.name} src={creator.profileImgUrl} mr="sm" radius="xl" variant="filled" size='lg' display="inline-block" />
         <Stack align='flex-start' spacing={1} sx={{ overflow: 'hidden', width: '100%' }} >
             <Flex align="center" direction="row" w="100%" sx={{maxWidth: '100%'}}>
@@ -21,7 +20,7 @@ const CreatorCard = ({ isLive, creator, onCreatorClick, selected}: CreatorCardPr
                     {creator.name}
 
                 </Title>
-                { isLive && (
+                { creator.isLive && (
                     <Badge my="auto" sx={{ overflow: 'initial' }} mb="auto" mx="0.9em" variant="filled" color="red">LIVE</Badge>
                 )}
             </Flex>
@@ -58,12 +57,12 @@ const CreatorCard = ({ isLive, creator, onCreatorClick, selected}: CreatorCardPr
                     alignItems: 'center',
                     backgroundColor: '#505050',
                     marginLeft: 'auto',
-                    ":hover": {
+                    ':hover': {
                         backgroundColor: '#6D6D6D',
                     }
                 }}
             >
-                    <BsCaretRight size="1.5em" />
+                <BsCaretRight size="1.5em" />
             </UnstyledButton>
         )}
     </Paper>

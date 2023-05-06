@@ -1,11 +1,11 @@
-import { Clip, Creator } from "../entities";
+import { Clip, Creator } from '../entities';
 
-export interface CreatorDto extends Omit<Creator, 'fortnite' | 'discord'> {
-}
-export interface ClipDto extends Clip {}
+export type CreatorDto = Omit<Creator, 'fortnite' | 'discord'>
+export type ClipDto = Clip
 
 export interface UserDto {
     id: string,
     name: string,
-    profilePicture?: string | undefined
+    profilePicture?: string | undefined,
+    isAdmin: boolean,
 }

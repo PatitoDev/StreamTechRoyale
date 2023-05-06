@@ -6,7 +6,7 @@ const twitchApi = new TwitchAPI();
 
 (async () => {
     for (const creator of creatorData) {
-        
+
         let profileImgUrl = '';
         if (creator.twitch){
             const result = await twitchApi.getUserInfo(creator.twitch);

@@ -8,8 +8,11 @@ import TwitchApi from './twitchApi';
 import { clipRepository } from './repository/clipRepository';
 import { userClipLikedRepository } from './repository/userClipLikedRepository';
 import { AuthenticationException } from './exceptions/authenticationException';
+import { userRepresentationRepository } from './repository/userRepresentationRepository';
 import * as jose from 'jose';
 import SECRETS from '@streamtechroyale/secrets';
+import { Config } from './config';
+import { rounds } from './migrations/rounds';
 
 const PORT = 8090;
 
@@ -85,7 +88,8 @@ app.get('/creators', async (_, res) => {
             twitter: creator.twitter,
             profileImgUrl: creator.profileImgUrl,
             tiktok: creator.tiktok,
-            youtube: creator.youtube
+            youtube: creator.youtube,
+            teamId: creator.teamId
         } satisfies CreatorDto));
 
         res.send(JSON.stringify(creatorsDto));
@@ -145,6 +149,51 @@ app.delete('/user/me/clip/:clipId/like', async (req, res) => {
     } catch (err) {
         handleError(err, res);
     }
+});
+
+app.get('/user/me/representation', async (req, res) => {
+    const userId = await validateAuth(req);
+    const representation = await userRepresentationRepository.getByUser(userId);
+    console.log(representation);
+    res.send(representation);
+});
+
+app.post('/user/me/representation/:creatorId', async (req, res) => {
+    const userId = await validateAuth(req);
+    const { creatorId } = req.params;
+    const creator = await creatorRepository.getCreator(creatorId);
+    if (!creator) {
+        res.sendStatus(404);
+        return;
+    }
+    const userRepresentation = await userRepresentationRepository.getByUser(userId);
+    if (userRepresentation) {
+        res.statusCode = 400;
+        res.send('Already representing a team');
+        return;
+    }
+    await userRepresentationRepository.put(userId, creatorId);
+    res.sendStatus(201);
+});
+
+app.post('/team/create', async (req, res) => {
+    const userId = await validateAuth(req);
+    if (!Config.adminId.includes(userId)) {
+        res.sendStatus(403);
+        return;
+    }
+    const creators = await creatorRepository.getCreators();
+    creators.forEach((item, index) => {
+        item.teamId = Math.floor(index / 3).toString();
+    });
+    for (const creator of creators) {
+        await creatorRepository.updateCreator(creator);
+    }
+    res.send(creators);
+});
+
+app.get('/rounds', async (req, res) => {
+    res.send(rounds);
 });
 
 app.get('/auth', async (req, res) => {

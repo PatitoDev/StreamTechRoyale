@@ -1,9 +1,9 @@
-import { ChannelsLiveEvent, CreatorDto, EventBase } from "@streamtechroyale/models";
-import { createContext, useCallback, useEffect, useMemo, useState } from "react";
-import { useWsContext } from "../wsContext/useWsContext";
-import { Api } from "../../api";
+import { ChannelsLiveEvent, CreatorDto, EventBase } from '@streamtechroyale/models';
+import { createContext, useCallback, useEffect, useMemo, useState } from 'react';
+import { useWsContext } from '../wsContext/useWsContext';
+import { Api } from '../../api';
 
-interface CreatorWithLiveIndicator extends CreatorDto {
+export interface CreatorWithLiveIndicator extends CreatorDto {
     isLive: boolean,
 }
 
@@ -23,15 +23,15 @@ export const TournamentContextProvider = ({ children }: {children: React.ReactNo
             if (e.type !== 'channels-live') return;
             const resp = (e as ChannelsLiveEvent).content;
             setLiveChannels(resp);
-        }
+        };
         subscribeToEvent('channels-live', channelsLiveCallback);
-    }, [])
+    }, []);
 
     useEffect(() => {
         (async () => {
             const resp = await Api.getCreators();
             if (!resp.data) return;
-            setChannels(resp.data)
+            setChannels(resp.data);
         })();
     }, []);
 
@@ -41,14 +41,14 @@ export const TournamentContextProvider = ({ children }: {children: React.ReactNo
             return {
                 ...creator,
                 isLive: !!isLive
-            }
+            };
         })
-        .sort((prev, next) => (next.isLive ? 0 : -1))
-    }, [channels, liveChannels])
+            .sort((prev, next) => (next.isLive ? 0 : -1));
+    }, [channels, liveChannels]);
 
     return (
         <TournamentContext.Provider value={{ creators: channelsWithLiveIndicator }}>
             {children}
         </TournamentContext.Provider>
-    )
-}
+    );
+};

@@ -12,6 +12,7 @@ export interface Creator {
     fortnite: string,
     group: GroupCategory,
     profileImgUrl: string,
+    teamId?: string | undefined,
 }
 
 export interface Clip {
@@ -33,4 +34,23 @@ export interface UserClipLiked {
      * Sort Key
      */
     clipId: string
+}
+
+export interface UserRepresentation {
+    /**
+     * Partition Key
+     */
+    creatorId: string,
+
+    /**
+     * Sort Key
+     */
+    userId: string,
+}
+
+export interface Round {
+    id: number,
+    type: 'SOLO' | 'TEAM',
+    limitation: string,
+    teamSelection: 'random' | 'picked'
 }
