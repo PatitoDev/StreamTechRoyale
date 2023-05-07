@@ -1,4 +1,4 @@
-import type { ISourceOptions } from "tsparticles-engine";
+import type { ISourceOptions } from 'tsparticles-engine';
 
 export const particleOptions: ISourceOptions = {
     fullScreen: {
@@ -7,7 +7,7 @@ export const particleOptions: ISourceOptions = {
     },
     background: {
         color: {
-            value: "#D9D9D9",
+            value: '#D9D9D9',
         },
     },
     fpsLimit: 60,
@@ -18,7 +18,7 @@ export const particleOptions: ISourceOptions = {
         move: {
             enable: true,
             outModes: {
-                default: "bounce",
+                default: 'bounce',
             },
             random: true,
             speed: 0.2,
@@ -32,7 +32,7 @@ export const particleOptions: ISourceOptions = {
             value: 1,
         },
         shape: {
-            type: "image",
+            type: 'image',
             images: [{
                 src: '/term.png',
             }]

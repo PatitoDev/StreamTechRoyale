@@ -1,5 +1,5 @@
-import { EventBase, EventType } from "@streamtechroyale/models";
-import { createContext, useCallback, useEffect, useState } from "react";
+import { EventBase, EventType } from '@streamtechroyale/models';
+import { createContext, useCallback, useEffect, useState } from 'react';
 
 type SubscribeToEventCallback = (event: EventBase) => void;
 
@@ -24,17 +24,18 @@ const parseWebsocketMessage = (message: unknown) => {
     if (typeof message === 'object') {
         return new TextDecoder().decode(message as ArrayBuffer);
     }
-}
+};
 
 export const WsContextProvider = ({ children }: WsContextProviderProps) => {
     const [ws, setWs] = useState<WebSocket | null>(null);
     const [subscriptions, setSubscriptions] = useState<Record<EventType, Array<SubscribeToEventCallback>>>({
-        "channels-live": [],
-        "clip-change": []
+        'channels-live': [],
+        'clip-change': [],
+        'tournament-state-change': [],
     });
 
     useEffect(() => {
-        const wsClient = new WebSocket(WS_URL)
+        const wsClient = new WebSocket(WS_URL);
         console.log('created ws');
         wsClient.onmessage = (e) => {
             const msg = parseWebsocketMessage(e.data);
@@ -44,19 +45,19 @@ export const WsContextProvider = ({ children }: WsContextProviderProps) => {
             for (const sub of subscriptions[msgData.type]) {
                 sub(msgData);
             }
-        }
+        };
         setWs(wsClient);
     }, []);
 
-    const sendMessage = useCallback((msg: string) => { ws?.send(JSON.stringify(msg)) }, [ws]);
+    const sendMessage = useCallback((msg: string) => { ws?.send(JSON.stringify(msg)); }, [ws]);
 
     const subscribeToEvent:WsContextData['subscribeToEvent'] = useCallback((type: EventType, callback: SubscribeToEventCallback) => {
         setSubscriptions((prev) => {
             const newData = { ...prev };
             newData[type].push(callback);
             return newData;
-        })
-    }, [setSubscriptions])
+        });
+    }, [setSubscriptions]);
 
     const desubscribeToEvent = useCallback((eventType: EventType, callback: SubscribeToEventCallback) => {
         setSubscriptions((prev) => {
@@ -77,4 +78,4 @@ export const WsContextProvider = ({ children }: WsContextProviderProps) => {
             {children}
         </WsContext.Provider>
     );
-} 
+}; 

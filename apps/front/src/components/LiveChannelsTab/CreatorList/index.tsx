@@ -1,8 +1,7 @@
 import { CreatorDto } from '@streamtechroyale/models';
-import { useAuth } from '../../../context/AuthContext/useAuth';
 import { useTournamentContext } from '../../../context/TournamentContext/useTournamentContext';
 import { useEffect, useMemo, useState } from 'react';
-import { Checkbox, Flex, TextInput, Text, Pagination } from '@mantine/core';
+import { Flex, TextInput, Text, Pagination } from '@mantine/core';
 import CreatorCard from '../../CreatorCard';
 import { usePagination } from '../../../hooks/usePagination';
 import TeamGroup from '../TeamGroup';
@@ -26,9 +25,10 @@ const whereCreatorHasValue = (creator:CreatorWithLiveIndicator, value: string) =
 };
 
 const CreatorList = ({ onSelectedCreatorChange, selectedCreator }:CreatorListProps) => {
-    const isTeam = true;
+    const { activeRound } = useTournamentContext();
     const { creators } = useTournamentContext();
     const [searchValue, setSearchValue] = useState<string>('');
+    const isTeam = activeRound?.type === 'TEAM';
 
     const creatorsPostSearch = useMemo(() => creators
         .filter(creator => ( whereCreatorHasValue(creator, searchValue) ))
@@ -57,6 +57,8 @@ const CreatorList = ({ onSelectedCreatorChange, selectedCreator }:CreatorListPro
     const memberPagination = usePagination(creatorsPostSearch, ITEMS_PER_PAGE);
     const teamPagination = usePagination(teamsFiltered, 3);
 
+    const paginationData = isTeam ? teamPagination : memberPagination;
+
     useEffect(() => {
         if (selectedCreator === null && creators.length){
             onSelectedCreatorChange(creators[0]);
@@ -77,9 +79,6 @@ const CreatorList = ({ onSelectedCreatorChange, selectedCreator }:CreatorListPro
                     isTeam ? teamPagination.onChange(1) : memberPagination.onChange(1);
                     setSearchValue(e.target.value);
                 }}
-            />
-            <Checkbox
-                label="Ocular muertos"
             />
             { !isTeam && !memberPagination.itemsToDisplay.length && (
                 <Text align="center" weight="bold">Creador no fue encontrado</Text>
@@ -104,7 +103,7 @@ const CreatorList = ({ onSelectedCreatorChange, selectedCreator }:CreatorListPro
                     key={team.teamId} creators={team.members} teamId={team.teamId} />
             ))}
 
-            <Pagination mx="auto" {...(isTeam ? teamPagination : memberPagination)} />
+            <Pagination mx="auto" total={paginationData.total} onChange={paginationData.onChange} value={paginationData.page} />
         </Flex>
     );
 };

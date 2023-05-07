@@ -1,5 +1,5 @@
 import { UserRepresentation } from '@streamtechroyale/models';
-import Tables from './tables';
+import Tables from './dbClient/tables';
 import dbClient from './dbClient';
 
 const getByUser = async (userId: string) => {

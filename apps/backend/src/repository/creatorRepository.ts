@@ -1,6 +1,6 @@
 import { Creator } from '@streamtechroyale/models';
 import dbClient from './dbClient';
-import Tables from './tables';
+import Tables from './dbClient/tables';
 import shortid from 'shortid';
 
 const getCreator = async (creatorId: string) => {

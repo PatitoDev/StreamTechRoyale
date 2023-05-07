@@ -1,7 +1,5 @@
 {
-  "include": [
-    "./src/index.ts",
-  ],
+  "include": ["src", "../../lib/models/responses/apiExceptions/index.ts"],
   "compilerOptions": {
     "lib": [
       "es6"

@@ -1,4 +1,4 @@
-import { Config } from '../config';
+import { AuthenticationConfiguration } from '../authentication/config';
 import SECRETS from '@streamtechroyale/secrets';
 import { ApiClient } from '@twurple/api';
 import { AppTokenAuthProvider } from '@twurple/auth';
@@ -83,7 +83,7 @@ class TwitchAPI {
             id: data.user_id,
             name:  twitchUser?.displayName ?? data.login,
             profilePicture: twitchUser?.profilePictureUrl,
-            isAdmin: Config.adminId.includes(data.user_id)
+            isAdmin: AuthenticationConfiguration.adminId.includes(data.user_id)
         } satisfies UserDto;
     };
 
@@ -91,7 +91,7 @@ class TwitchAPI {
         const liveCreators:Array<Creator> = [];
         for (const creator of this._creators) {
             if (!creator.twitch) continue;
-            const resp = await this.getChannelInfo(creator.twitch);
+            const resp = await this.getChannelInfo(creator.twitch.toLowerCase());
             if (!resp) {
                 console.log(`Could not find ${creator.twitch}`);
                 continue;
@@ -107,7 +107,9 @@ class TwitchAPI {
                 .every(channel => liveCreators.find((liveCreator) => liveCreator.id === channel.id))
         );
 
-        console.log(`Live channels changed: ${!isTheSame}`);
+        if (!isTheSame) {
+            console.log(`Live channels changed: ${!isTheSame}`);
+        }
         this._liveChannels = liveCreators;
 
         if (this._onLiveChannelChange && !isTheSame) {

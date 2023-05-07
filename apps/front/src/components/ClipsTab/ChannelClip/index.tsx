@@ -1,9 +1,8 @@
-import { Button, Flex, Text, UnstyledButton, Image, Box } from "@mantine/core";
-import { Clip } from "@streamtechroyale/models";
-import { useEffect, useState } from "react";
-import { BsHandThumbsUp, BsHandThumbsUpFill, BsPlay } from "react-icons/bs";
-import { TwitchClip } from "react-twitch-embed";
-import { Api } from "../../../api";
+import { Button, Flex, Text, UnstyledButton, Image } from '@mantine/core';
+import { Clip } from '@streamtechroyale/models';
+import { useState } from 'react';
+import { BsHandThumbsUp, BsHandThumbsUpFill, BsPlay } from 'react-icons/bs';
+import { TwitchClip } from 'react-twitch-embed';
 
 export interface ChannelClipProps {
     clip: Clip,
@@ -62,7 +61,7 @@ const ChannelClip = ({ clip, liked, onLikedClip }: ChannelClipProps) => {
                 </Flex>
             </Flex>
         </Flex>
-    )
+    );
 };
 
 export default ChannelClip;

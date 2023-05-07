@@ -3,13 +3,14 @@ import { particleOptions } from '../../particlesOptions';
 import { useCallback, useState } from 'react';
 import { loadFull } from 'tsparticles';
 import type { Engine } from 'tsparticles-engine';
-import { Box, Title, Text, Tabs, Flex, Button, Anchor, Avatar, Drawer, NavLink } from '@mantine/core';
+import { Box, Title, Text, Tabs, Flex, Button, Anchor, Avatar, Drawer, NavLink, Stepper } from '@mantine/core';
 import LiveChannelsTab from '../../components/LiveChannelsTab';
 import ClipsTab from '../../components/ClipsTab';
 import { config } from '../../config';
 import { useAuth } from '../../context/AuthContext/useAuth';
 import { GiHamburgerMenu } from 'react-icons/all';
 import AdminTab from '../../components/AdminTab';
+import { useTournamentContext } from '../../context/TournamentContext/useTournamentContext';
 
 type TabsValues = 'live' | 'history' | 'ruleta' | 'clips' | 'admin';
 const tabs:Array<{ value: TabsValues, display: string, adminOnly?: boolean }> = [
@@ -21,6 +22,7 @@ const tabs:Array<{ value: TabsValues, display: string, adminOnly?: boolean }> = 
 ];
 
 const Tournament = () => {
+    const { activeRound } = useTournamentContext();
     const [ selectedTab, setSelectedTab ] = useState<TabsValues>('live');
     const [ isMenuOpened, setIsMenuOpened ] = useState<boolean>(false);
     const { auth, logOut } = useAuth();
@@ -32,6 +34,7 @@ const Tournament = () => {
         setSelectedTab(value);
         setIsMenuOpened(false);
     };
+    console.log(activeRound);
 
     return (
         <Box>
@@ -55,7 +58,11 @@ const Tournament = () => {
                         <Text ml="md" size="2em" display="inline">Fortnite edition</Text>
                     </Box>
 
-                    <Title order={1}>TORNEO EN CURSO - Ronda asd</Title>
+                    {activeRound && (
+                        <>
+                            <Title order={2}>Ronda {activeRound.id} ({activeRound.type === 'SOLO' ? 'Individual' : 'Por equipos'}) - {activeRound.limitation}</Title>
+                        </>
+                    )}
                 </Box>
 
                 <Box ml="auto" mr="1em"

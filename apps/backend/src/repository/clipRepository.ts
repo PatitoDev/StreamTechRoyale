@@ -1,6 +1,6 @@
 import { Clip } from '@streamtechroyale/models';
 import dbClient from './dbClient';
-import Tables from './tables';
+import Tables from './dbClient/tables';
 
 const putClip = async (clip: Clip) => {
     dbClient.put({

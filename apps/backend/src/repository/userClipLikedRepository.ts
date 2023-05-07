@@ -1,5 +1,5 @@
 import dbClient from './dbClient';
-import Tables from './tables';
+import Tables from './dbClient/tables';
 import { UserClipLiked } from '@streamtechroyale/models';
 
 const get = async (userId: string) => {

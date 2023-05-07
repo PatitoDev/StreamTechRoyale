@@ -1,5 +1,5 @@
-import { ChannelsLiveEvent, CreatorDto, EventBase } from '@streamtechroyale/models';
-import { createContext, useCallback, useEffect, useMemo, useState } from 'react';
+import { ChannelsLiveEvent, CreatorDto, EventBase, Round, TournamentStateChangeEvent } from '@streamtechroyale/models';
+import { createContext, useEffect, useMemo, useState } from 'react';
 import { useWsContext } from '../wsContext/useWsContext';
 import { Api } from '../../api';
 
@@ -9,11 +9,13 @@ export interface CreatorWithLiveIndicator extends CreatorDto {
 
 export interface CreatorContextState {
     creators: Array<CreatorWithLiveIndicator>,
+    activeRound?: Round | null,
 }
 
 export const TournamentContext = createContext<CreatorContextState | null>(null); 
 
 export const TournamentContextProvider = ({ children }: {children: React.ReactNode}) => {
+    const [activeRound, setActiveRound] = useState<Round | null>(null);
     const [channels, setChannels] = useState<Array<CreatorDto>>([]);
     const [liveChannels, setLiveChannels] = useState<Array<CreatorDto>>([]);
     const { subscribeToEvent, desubscribeToEvent } = useWsContext();
@@ -25,13 +27,25 @@ export const TournamentContextProvider = ({ children }: {children: React.ReactNo
             setLiveChannels(resp);
         };
         subscribeToEvent('channels-live', channelsLiveCallback);
+
+        const onTournamentStateChange = (e: EventBase) => {
+            if (e.type !== 'tournament-state-change') return;
+            const newState = (e as TournamentStateChangeEvent).content;
+            setActiveRound(newState.activeRound);
+            setChannels(newState.creators);
+        };
+
+        subscribeToEvent('tournament-state-change', onTournamentStateChange);
     }, []);
 
     useEffect(() => {
         (async () => {
-            const resp = await Api.getCreators();
-            if (!resp.data) return;
-            setChannels(resp.data);
+            const respActiveRound = await Api.getActiveRound();
+            const respGetCreators = await Api.getCreators();
+            if (respActiveRound.data && respGetCreators.data) {
+                setChannels(respGetCreators.data);
+                setActiveRound(respActiveRound.data);
+            }
         })();
     }, []);
 
@@ -47,7 +61,7 @@ export const TournamentContextProvider = ({ children }: {children: React.ReactNo
     }, [channels, liveChannels]);
 
     return (
-        <TournamentContext.Provider value={{ creators: channelsWithLiveIndicator }}>
+        <TournamentContext.Provider value={{ creators: channelsWithLiveIndicator, activeRound }}>
             {children}
         </TournamentContext.Provider>
     );

@@ -1,10 +1,10 @@
-import { Button, Flex, Pagination, Text, TextInput } from "@mantine/core";
-import { Clip, ClipChangeEvent } from "@streamtechroyale/models";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { Api } from "../../api";
-import ChannelClip from "./ChannelClip";
-import { useWsContext } from "../../context/wsContext/useWsContext";
-import { useAuth } from "../../context/AuthContext/useAuth";
+import { Flex, Pagination, Text } from '@mantine/core';
+import { Clip, ClipChangeEvent } from '@streamtechroyale/models';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Api } from '../../api';
+import ChannelClip from './ChannelClip';
+import { useWsContext } from '../../context/wsContext/useWsContext';
+import { useAuth } from '../../context/AuthContext/useAuth';
 
 const ITEMS_PER_PAGE = 12;
 
@@ -26,7 +26,7 @@ const ClipsTab = () => {
         return clips.map((clip) => ({
             ...clip,
             hasLiked: !!likedClips.find((clipId) => clipId === clip.id)
-        } satisfies ClipsWithLikeInformation))
+        } satisfies ClipsWithLikeInformation));
     }, [clips, likedClips]);
 
     const itemsToDisplay = (clipsWithLikes).slice(start, start + ITEMS_PER_PAGE);
@@ -39,7 +39,7 @@ const ClipsTab = () => {
                 return prev.map((item) => ({
                     ...(item.id === eventParsed.content.id ? eventParsed.content : item)
                 }));
-            })
+            });
         });
 
         (async () => {
@@ -47,7 +47,7 @@ const ClipsTab = () => {
             if (clipsResp.data) {
                 setClips(clipsResp.data);
             }
-        })()
+        })();
     }, []);
 
     useEffect(() => {
@@ -55,13 +55,13 @@ const ClipsTab = () => {
             if (!auth) {
                 setLikedClips([]);
                 return;
-            };
+            }
 
             const likedClipsResp = await Api.getLikedClips(auth.token);
             if (likedClipsResp.data) {
                 setLikedClips(likedClipsResp.data);
             }
-        })()
+        })();
     }, [auth]);
 
     const onLikedClip = useCallback(async (clip: ClipsWithLikeInformation) => {
@@ -77,7 +77,7 @@ const ClipsTab = () => {
         }
         await Api.dislikeClip(clip.id, auth.token);
         setLikedClips((prev) => (prev.filter((item) => item !== clip.id)));
-    }, [auth])
+    }, [auth]);
 
     return (
         <Flex direction="column" align="center">
@@ -94,7 +94,7 @@ const ClipsTab = () => {
             </Flex>
             <Pagination total={totalPages} value={page} onChange={setPage} />
         </Flex>
-    )
-}
+    );
+};
 
 export default ClipsTab;

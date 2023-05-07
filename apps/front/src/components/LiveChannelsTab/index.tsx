@@ -1,8 +1,6 @@
 import { CreatorDto } from '@streamtechroyale/models';
-import { useEffect, useState } from 'react';
-import { Api } from '../../api';
-import CreatorCard from '../CreatorCard';
-import { Avatar, Button, Checkbox, Flex, Pagination, Text, TextInput } from '@mantine/core';
+import { useState } from 'react';
+import { Avatar, Button, Flex, Text } from '@mantine/core';
 import { TwitchEmbed } from 'react-twitch-embed';
 import { useTournamentContext } from '../../context/TournamentContext/useTournamentContext';
 import { useStyles } from './styles';
