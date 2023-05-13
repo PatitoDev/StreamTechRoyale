@@ -96,7 +96,7 @@ export const TournamentContextProvider = ({ children }: {children: React.ReactNo
     }, [channels, liveChannels]);
 
     if (!tournamentState) {
-        return <div>loading</div>;
+        return null;
     }
 
     return (
