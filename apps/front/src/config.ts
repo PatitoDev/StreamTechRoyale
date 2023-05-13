@@ -1,5 +1,5 @@
 const clientId= 'rkb30xb65jci7xf9uqq06d6qpadvu5';
-const redirectUrl= 'http://localhost:5173';
+const redirectUrl= 'https://streamtechroyale.com';
 const codeType: 'token' | 'code' = 'token';
 
 export const config = {

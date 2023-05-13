@@ -15,8 +15,8 @@ export interface WsContextProviderProps {
     children: React.ReactNode,
 }
 
-const WS_URL = 'ws://localhost:8090';
-//const WS_URL = 'wss://api.streamtechroyale.com';
+//const WS_URL = 'ws://localhost:8090';
+const WS_URL = 'wss://api.streamtechroyale.com';
 
 
 const parseWebsocketMessage = (message: unknown) => {

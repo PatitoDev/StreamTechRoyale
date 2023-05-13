@@ -41,6 +41,7 @@ import { RouletteController } from './controllers/roulletteController';
 import { TournamentController } from './controllers/tournamentController';
 import creatorRepository from './repository/creatorRepository';
 import { clipRepository } from './repository/clipRepository';
+import { wrap } from './exceptions/wrap';
 
 app.use('/auth', AuthController);
 app.use('/clip', ClipController);
@@ -49,6 +50,12 @@ app.use('/tournament', TournamentController);
 app.use('/team', TeamController);
 app.use('/user', UserController);
 app.use('/roullette', RouletteController);
+
+app.get('/creators', wrap(async (req, res) => {
+    const creators = await creatorRepository.getCreators();
+    const creatorsDto = creators.map(Mapper.toCreatorDto);
+    res.send(JSON.stringify(creatorsDto));
+}));
 
 const errorHandler: ErrorRequestHandler = (err:unknown, req, res, next) => {
     if (err instanceof ApiException) {
