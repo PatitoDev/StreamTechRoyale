@@ -14,11 +14,13 @@ export interface CreatorContextState {
     creators: Array<CreatorWithLiveIndicator>,
     tournamentState: TournamentState,
     setWonRoundModal: React.Dispatch<React.SetStateAction<RoundEndEventPayload | null>>,
+    disableWinCondition: React.Dispatch<React.SetStateAction<boolean>>,
 }
 
 export const TournamentContext = createContext<CreatorContextState | null>(null); 
 
 export const TournamentContextProvider = ({ children }: {children: React.ReactNode}) => {
+    const [disableWinCondition, setDisableWinCondition] = useState<boolean>(false);
     const [tournamentState, setTournamentState] = useState<TournamentState | null>(null);
     const [channels, setChannels] = useState<Array<CreatorDto>>([]);
     const [liveChannels, setLiveChannels] = useState<Array<CreatorDto>>([]);
@@ -100,9 +102,9 @@ export const TournamentContextProvider = ({ children }: {children: React.ReactNo
     }
 
     return (
-        <TournamentContext.Provider value={{ creators: channelsWithLiveIndicator, tournamentState, setWonRoundModal: setHasWonRound }}>
+        <TournamentContext.Provider value={{ disableWinCondition: setDisableWinCondition, creators: channelsWithLiveIndicator, tournamentState, setWonRoundModal: setHasWonRound }}>
             <Modal centered size="xl" opened={!!hasWonRound} onClose={() => { setHasWonRound(null);}}>
-                {hasWonRound && (
+                {hasWonRound && !disableWinCondition && (
                     <Flex pb="3em" direction="column">
                         <RoundWinCard win={hasWonRound} />
                         { hasWonRound.prize && hasWonRound.userWon && (

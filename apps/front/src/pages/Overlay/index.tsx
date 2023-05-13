@@ -1,15 +1,18 @@
 import { useEffect, useState } from 'react';
 import { useWsContext } from '../../context/wsContext/useWsContext';
 import { RoullettePrizeWonEvent } from '@streamtechroyale/models';
-import { Avatar, Card, Flex, Paper, Text, Transition } from '@mantine/core';
+import { Avatar, Flex, Paper, Text, Transition } from '@mantine/core';
 import SponsorImage from '../../components/Sponsor';
+import { useTournamentContext } from '../../context/TournamentContext/useTournamentContext';
 
 const Overlay = () => {
+    const { disableWinCondition } = useTournamentContext();
     const { subscribeToEvent } = useWsContext();
     const [prizeWon, setPrizeWon] = useState<RoullettePrizeWonEvent['content'] | null>(null);
     const [isOpen, setIsOpen] = useState<boolean>(false);
 
     useEffect(() => {
+        disableWinCondition(true);
         subscribeToEvent('roullette-prize-won', (e) => {
             if (e.type !== 'roullette-prize-won') return;
             setPrizeWon((e as RoullettePrizeWonEvent).content);
