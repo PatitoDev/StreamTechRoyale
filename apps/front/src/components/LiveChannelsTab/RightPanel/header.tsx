@@ -41,7 +41,7 @@ const Header = ({ creator }: HeaderProps) => {
             <Flex mb="0.5em" px="0.5em" align="center">
                 {!auth?.representation && (
                     <>
-                        <Button disabled={!canPickRepresentation} mr="1em" onClick={onOpenClick} >Elejir streamer</Button>
+                        <Button disabled={!canPickRepresentation} mr="1em" onClick={onOpenClick} >Elegir streamer</Button>
                         {canPickRepresentation && (
                             <Text weight="bold">
                     Elije a tu creador favorito y si gana obtendras la oportunidad de ganar premios. 
