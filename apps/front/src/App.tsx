@@ -39,8 +39,8 @@ const App = () => (
 
 const Routes = () =>  {
     const router = createBrowserRouter([
-        { path: '/', element: <PreTournament /> },
-        { path: '/test', element: <Tournament /> },
+        //{ path: '/', element: <PreTournament /> },
+        { path: '/', element: <Tournament /> },
         { path: '/overlay', element: <Overlay /> }
     ]);
 
