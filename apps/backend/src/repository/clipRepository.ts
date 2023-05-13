@@ -46,12 +46,21 @@ const updateLikes = async (clipId: string, likes: number) => {
 
 const getClips = async () => {
     const resp = await dbClient.scan({
-        TableName: Tables.clip
+        TableName: Tables.clip,
     });
     return (resp.Items as Array<Clip>) ?? [];
 };
 
+const get = async (clipId: string) => {
+    const resp = await dbClient.get({
+        TableName: Tables.clip,
+        Key: { id: clipId }
+    });
+    return (resp.Item as Clip | undefined);
+};
+
 export const clipRepository = {
+    get,
     putClip,
     getClips,
     updateLikes,

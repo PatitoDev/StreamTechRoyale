@@ -3,6 +3,7 @@ import { createContext, ReactNode, useCallback, useEffect, useState } from 'reac
 import { config } from '../../config';
 import { Api } from '../../api';
 import { UserDto, UserRepresentation } from '@streamtechroyale/models';
+import { Modal } from '@mantine/core';
 
 export interface AuthState {
     auth: {
@@ -12,6 +13,7 @@ export interface AuthState {
     } | null,
     authenticate: () => void,
     logOut: () => void,
+    setRepresentation: (creatorId: string, userId: string) => void
 }
 
 export const AuthContext = createContext<AuthState | null>(null);
@@ -21,6 +23,7 @@ const STORAGE_KEY = 'AUTH';
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [auth, setAuth] = useState<AuthState['auth']>(null);
     const [hash, setHash] = useHash();
+    const [authError, setAuthError] = useState<string | null>(null);
 
     const authenticate = useCallback(() => {
         window.location.href = config.authUrl;
@@ -68,6 +71,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     const [key, value] = hashValue.split('=');
                     if (key !== 'access_token' || !value) continue;
                     const authResult = await Api.apiAuthentication(value);
+                    if (authResult.error) {
+                        console.log('err:', authResult.error);
+                        setAuthError(authResult.error.message ?? 'No se a podido authenticar con el servidor, prueba otra vez');
+                    }
                     if (!authResult.data) continue;
                     const representationResult = await Api.getUserRepresentation(authResult.data.token);
                     const newAuth = {
@@ -84,8 +91,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         })();
     }, [hash]);
 
+    const onSetRepresentation = (creatorId:string, userId: string) => {
+        setAuth((prev) => {
+            if (!prev?.user) return prev;
+            return {
+                ...prev,
+                representation: {
+                    creatorId: creatorId,
+                    userId: userId
+                }
+            };
+        });
+    };
+
     return (
-        <AuthContext.Provider value={{ auth, authenticate, logOut }}>
+        <AuthContext.Provider value={{ auth, authenticate, logOut, setRepresentation: onSetRepresentation }}>
+            <Modal opened={!!authError} onClose={() => setAuthError(null)} title="Error al authenticar">
+                {authError}
+            </Modal>
             {children}
         </AuthContext.Provider>
     );

@@ -6,9 +6,11 @@ import { Mapper } from '../mapper';
 import { wrap } from '../exceptions/wrap';
 
 const app = express.Router();
+
 app.post('/create', wrap(async (req, res) => {
     await Authentication.validateAdmin(req);
-    const creators = await creatorRepository.getCreators();
+    const creators = (await creatorRepository.getCreators())
+        .filter((item) => item.isActive);
     const creatorsWithTeamId = randomizer.createTeams(creators);
     for (const creator of creatorsWithTeamId) {
         await creatorRepository.updateCreator(creator);

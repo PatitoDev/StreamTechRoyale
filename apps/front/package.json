@@ -18,8 +18,10 @@
     "embla-carousel-react": "^7.1.0",
     "eslint-plugin-react": "^7.32.2",
     "react": "^18.2.0",
+    "react-custom-roulette": "^1.4.1",
     "react-dom": "^18.2.0",
     "react-icons": "^4.8.0",
+    "react-router-dom": "^6.11.1",
     "react-tsparticles": "^2.9.3",
     "react-twitch-embed": "^3.0.1",
     "tsparticles": "^2.9.3"

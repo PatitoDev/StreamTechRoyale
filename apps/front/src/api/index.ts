@@ -1,4 +1,4 @@
-import { CreatorDto, Clip, UserDto, UserRepresentation, Round, ApiException, NotFoundException, AuthorizationException, AuthenticationException, BadRequestException } from '@streamtechroyale/models';
+import { CreatorDto, Clip, UserDto, UserRepresentation, Round, ApiException, NotFoundException, AuthorizationException, AuthenticationException, BadRequestException, RoullettePrize, Creator, TournamentState, StateChangeRequest, EndRoundRequest, RoullettePrizeDto, RoullettePrizeResponse, RoulletteRestriction, UserClipLiked } from '@streamtechroyale/models';
 
 
 const API_URL = 'http://localhost:8090/';
@@ -12,14 +12,33 @@ export interface ApiResponse<T = null> {
 const createHeaders = (token: string) => {
     const header = new Headers();
     header.append('Authorization', `Bearer ${token}`);
+    header.append('Content-Type', 'application/json');
     return header;
 };
 
-const getCreators = async ():Promise<ApiResponse<CreatorDto[]>> => {
-    const resp = await fetch(API_URL + 'creator');
+const getActiveCreators = async ():Promise<ApiResponse<CreatorDto[]>> => {
+    const resp = await fetch(API_URL + 'creator/active');
     if (!resp.ok) throw new Error();
 
     return await mapResponse<CreatorDto[]>(resp);
+};
+
+const getCreators = async (token: string):Promise<ApiResponse<Creator[]>> => {
+    const resp = await fetch(API_URL + 'creator',{
+        headers: createHeaders(token)
+    });
+    if (!resp.ok) throw new Error();
+
+    return await mapResponse<Creator[]>(resp);
+};
+
+const updateCreator = async (token: string, id: string, creator: CreatorDto) => {
+    const resp = await fetch(API_URL + `creator/${id}`, {
+        method: 'PATCH',
+        headers: createHeaders(token),
+        body: JSON.stringify(creator)
+    });
+    if (!resp.ok) throw new Error();
 };
 
 const getClips = async ():Promise<ApiResponse<Clip[]>> => {
@@ -47,12 +66,12 @@ const dislikeClip = async (clipId: string, token: string):Promise<ApiResponse<Cl
     return await mapResponse<Clip>(resp);
 };
 
-const getLikedClips = async (token: string):Promise<ApiResponse<Array<string>>> => {
+const getLikedClips = async (token: string):Promise<ApiResponse<Array<UserClipLiked>>> => {
     const resp = await fetch(API_URL + 'user/me/likedClips', {
         headers: createHeaders(token),
     });
 
-    return await mapResponse<Array<string>>(resp);
+    return await mapResponse<Array<UserClipLiked>>(resp);
 };
 
 const apiAuthentication = async (twitchToken: string):Promise<ApiResponse<
@@ -61,7 +80,6 @@ const apiAuthentication = async (twitchToken: string):Promise<ApiResponse<
     const resp = await fetch(API_URL + 'auth', {
         headers: createHeaders(twitchToken),
     });
-
     return await mapResponse(resp);
 };
 
@@ -95,23 +113,55 @@ const createTeams = async (token: string) => {
     return await mapResponse(resp);
 };
 
-const getActiveRound = async () => {
-    const resp = await fetch(API_URL + 'round/active');
-    return await mapResponse<Round>(resp);
+const getTournamentState = async () => {
+    const resp = await fetch(API_URL + 'tournament/state');
+    return await mapResponse<TournamentState>(resp);
+};
+
+const setTournamentState = async (state: StateChangeRequest, token: string): Promise<ApiResponse> => {
+    const resp = await fetch(API_URL + 'tournament/state', {
+        headers: createHeaders(token),
+        method: 'PATCH',
+        body: JSON.stringify(state)
+    });
+    return await mapResponse(resp);
 };
 
 const getAllRounds = async (token: string): Promise<ApiResponse<Round[]>> => {
-    const resp = await fetch(API_URL + 'round', {
+    const resp = await fetch(API_URL + 'tournament/round', {
         headers: createHeaders(token),
     });
 
     return await mapResponse(resp);
 };
 
-const setActiveRound = async (roundId: number, token: string): Promise<ApiResponse> => {
-    const resp = await fetch(API_URL + `round/active/${roundId}`, {
+const playRoullette = async (token: string): Promise<ApiResponse<RoullettePrizeResponse>> => {
+    const resp = await fetch(API_URL + 'roullette/play', {
         headers: createHeaders(token),
         method: 'POST'
+    });
+    return await mapResponse(resp);
+};
+
+const getRestriction = async (token: string):Promise<ApiResponse<RoulletteRestriction | undefined>> => {
+    const resp = await fetch(API_URL + 'roullette/restriction', {
+        headers: createHeaders(token)
+    });
+    return await mapResponse(resp);
+};
+
+const getPrizesForRoullette = async (): Promise<ApiResponse<Array<RoullettePrizeDto>>> => {
+    const resp = await fetch(API_URL + 'roullette');
+    return await mapResponse(resp);
+};
+
+const endTournamentRound = async (token:string, winnerCreatorId: string):Promise<ApiResponse> => {
+    const resp = await fetch(API_URL + 'tournament/round/end', {
+        headers: createHeaders(token),
+        method: 'POST',
+        body: JSON.stringify({
+            creatorWonId: winnerCreatorId
+        } satisfies EndRoundRequest)
     });
     return await mapResponse(resp);
 };
@@ -119,6 +169,7 @@ const setActiveRound = async (roundId: number, token: string): Promise<ApiRespon
 const mapResponse = async <T = null>(res: Response):Promise<ApiResponse<T>> => {
     try {
         const error = await handleErrorException(res);
+        if (error) return { error };
         const data = (await res.json()) as T;
         return { data, error };
     } catch {
@@ -138,11 +189,9 @@ const handleErrorException = async (res:Response) => {
 
     let body: string | undefined = undefined;
     try {
-        const content = await res.json();
-        if (typeof content === 'string') {
-            body = content;
-        }
-    } catch {
+        const content = await res.text();
+        body = content;
+    } catch (er) {
         body = undefined;
     }
 
@@ -159,9 +208,13 @@ const handleErrorException = async (res:Response) => {
 };
 
 export const Api = {
+    getRestriction,
+    endTournamentRound,
+    updateCreator,
     getAllRounds,
-    setActiveRound,
-    getActiveRound,
+    getActiveCreators,
+    getTournamentState,
+    setTournamentState,
     createTeams,
     getCreators,
     getClips,
@@ -171,5 +224,7 @@ export const Api = {
     validateToken,
     apiAuthentication,
     getUserRepresentation,
-    setUserRepresentation
+    setUserRepresentation,
+    playRoullette,
+    getPrizesForRoullette
 };

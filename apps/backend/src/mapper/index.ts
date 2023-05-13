@@ -1,4 +1,5 @@
-import { Creator, CreatorDto } from '@streamtechroyale/models';
+import { Creator, CreatorDto, RoundVictory, RoundVictoryDto } from '@streamtechroyale/models';
+import { rounds } from '../migrations/rounds';
 
 const toCreatorDto = (item: Creator): CreatorDto => ({
     group: item.group,
@@ -10,7 +11,8 @@ const toCreatorDto = (item: Creator): CreatorDto => ({
     twitch: item.twitch,
     twitter: item.twitter,
     youtube: item.youtube,
-    teamId: item.teamId
+    teamId: item.teamId,
+    isActive: item.isActive
 });
 
 export const Mapper = {

@@ -1,6 +1,8 @@
 import creatorData from './creator';
 import creatorRepository from '../repository/creatorRepository';
 import TwitchAPI from '../twitchApi';
+import { roulettePrizes } from './prizes';
+import { prizeRepository } from '../repository/prizeRepository';
 
 const twitchApi = new TwitchAPI();
 
@@ -20,5 +22,10 @@ const twitchApi = new TwitchAPI();
             ...creator,
             profileImgUrl
         });
+    }
+
+    for (const prize of roulettePrizes) {
+        console.log('adding prize: ', prize.name);
+        await prizeRepository.put(prize);
     }
 })();

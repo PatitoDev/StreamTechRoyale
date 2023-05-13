@@ -18,7 +18,7 @@ const TeamGroup = (props: TeamGroupProps) => (
                     creator={creator} 
                     key={creator.id} 
                     selected={creator.id === props.selectedCreatorId} 
-                    onCreatorClick={creator.twitch ? (() => props.onCreatorClick(creator)) : undefined}
+                    onCreatorClick={(() => props.onCreatorClick(creator))}
                 />
             ))
         }

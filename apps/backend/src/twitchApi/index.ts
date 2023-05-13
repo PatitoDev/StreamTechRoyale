@@ -1,9 +1,10 @@
 import { AuthenticationConfiguration } from '../authentication/config';
 import SECRETS from '@streamtechroyale/secrets';
-import { ApiClient } from '@twurple/api';
-import { AppTokenAuthProvider } from '@twurple/auth';
+import { ApiClient, HelixPrivilegedUser } from '@twurple/api';
+import { AppTokenAuthProvider, StaticAuthProvider } from '@twurple/auth';
 import creatorRepository from '../repository/creatorRepository';
-import { Creator, UserDto } from '@streamtechroyale/models';
+import { AuthenticationException, Creator, UserDto } from '@streamtechroyale/models';
+import { rawDataSymbol } from '@twurple/common';
 
 const TIME_BETWEEN_UPDATES = 30000;
 
@@ -39,6 +40,11 @@ class TwitchAPI {
         return resp;
     };
 
+    public getUserInfoById = async (id: string) => {
+        const resp = await this._client.users.getUserById(id);
+        return resp;
+    };
+
     public getUserInfo = async (name: string) => {
         const resp = await this._client.users.getUserByName(name);
         return resp;
@@ -48,14 +54,16 @@ class TwitchAPI {
         return this._liveChannels;
     };
 
-    public getClipsFromChannel = async (channel: string) => {
+    public getClipsFromChannel = async (channel: string, fromDate: string) => {
         const user = await this.getUserInfo(channel);
         if (!user) {
             console.log('user not found');
             return;
         }
-        // TODO - set date filter
-        const resp = await this._client.clips.getClipsForBroadcaster(user.id);
+
+        const resp = await this._client.clips.getClipsForBroadcaster(user.id, {
+            startDate: fromDate,
+        });
         // TODO - start pagination crawl
         return resp.data;
     };
@@ -78,12 +86,22 @@ class TwitchAPI {
             throw new Error();
         }
 
+        // get email status
+        const tAuth = new StaticAuthProvider(data.client_id, token);
+        const tAPi = new ApiClient({ authProvider: tAuth });
+        const tUser = await tAPi.users.getUserById(data.user_id);
+        if (!tUser) throw new Error();
+        //const email = (tUser as unknown as Record<string, unknown>)['email'];
+        const email = ((tUser[rawDataSymbol]) as unknown as Record<string, unknown>)['email'];
+        if (typeof email !== 'string') throw new AuthenticationException('Por favor usa una cuenta con el email verificado.');
+
         const twitchUser = await this._client.users.getUserById(data.user_id);
         return {
             id: data.user_id,
             name:  twitchUser?.displayName ?? data.login,
             profilePicture: twitchUser?.profilePictureUrl,
-            isAdmin: AuthenticationConfiguration.adminId.includes(data.user_id)
+            isAdmin: AuthenticationConfiguration.adminId.includes(data.user_id),
+            email: email,
         } satisfies UserDto;
     };
 

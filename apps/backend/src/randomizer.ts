@@ -1,7 +1,25 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Creator } from '@streamtechroyale/models';
+import { PreTeams } from './preTeams';
 
-const createTeams = (creators: Array<Creator>) => {
+const createPreTeams = (creators: Array<Creator>) => {
+    const preTeams = [...PreTeams];
+    const creatorsToUpdate = creators.filter((c) => preTeams.some(c2 => c2.name === c.name));
+    const updatedCreators = creatorsToUpdate.map((c) => {
+        const found = preTeams.find(c2 => c2.name === c.name);
+        if (!found) return c;
+        return {
+            ...c,
+            teamId: found.teamId
+        };
+    });
+
+    const leftToFormTeam = creators.filter((c) => !preTeams.some(c2 => c2.name === c.name));
+    const other = createTeams(leftToFormTeam, 9);
+    return [...updatedCreators, ...other];
+};
+
+const createTeams = (creators: Array<Creator>, offset = 0) => {
     let aGroup = creators.filter(item => item.group === 'A');
     let bGroup = creators.filter(item => item.group === 'B');
 
@@ -47,7 +65,7 @@ const createTeams = (creators: Array<Creator>) => {
 
     teams.forEach((team, index) => {
         team.forEach(team => {
-            team.teamId = index.toString();
+            team.teamId = (index + offset).toString();
         });
     });
 
@@ -74,5 +92,6 @@ const shuffleArray = <T>(array: Array<T>) => {
 
 export const randomizer = {
     createTeams,
-    shuffleArray
+    shuffleArray,
+    createPreTeams
 };

@@ -1,3 +1,5 @@
+import { CreatorDto } from '../responses';
+
 export type GroupCategory = 'A' | 'B';
 
 export interface Creator {
@@ -13,6 +15,7 @@ export interface Creator {
     group: GroupCategory,
     profileImgUrl: string,
     teamId?: string | undefined,
+    isActive?: boolean | undefined
 }
 
 export interface Clip {
@@ -54,3 +57,49 @@ export interface Round {
     limitation: string,
     teamSelection: 'random' | 'picked'
 }
+
+export type ProbabilityCategory = 'A' | 'B' | 'C' | 'D';
+export type RoulletteDisplayType = 'Beca' | 'Sorpresa' | 'Paquete Cloud' | 'Gadget' | 'Accessory' | 'Gira otra vez!' | 'Espera 30m';
+
+export interface RoundVictory {
+    roundId: number,
+    round: Round,
+    creatorsWon: Array<CreatorDto>,
+    userWon?: {
+        id: string,
+        name: string,
+        profileImage: string
+    } | undefined,
+}
+
+export interface RoullettePrize {
+    id: string,
+    name: string,
+    amount: number,
+    limited: boolean,
+    sponsor: Sponsor | null,
+    category: ProbabilityCategory,
+    type: RoulletteDisplayType
+}
+
+export interface RoulletteWin {
+    id: string,
+    prizeName: string,
+    userId: string,
+    userName: string,
+    userEmail: string,
+    prize: RoullettePrize,
+}
+
+export interface RoundPrize {
+    id: number,
+    name: string,
+    sponsor: Sponsor
+}
+
+export interface RoulletteRestriction {
+    userId: string,
+    restrictValue: number,
+}
+
+export type Sponsor = 'Devtalles' | 'Donweb Cloud' | 'Codealo';

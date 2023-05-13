@@ -3,7 +3,7 @@ import { particleOptions } from '../../particlesOptions';
 import { useCallback, useState } from 'react';
 import { loadFull } from 'tsparticles';
 import type { Engine } from 'tsparticles-engine';
-import { Box, Title, Text, Tabs, Flex, Button, Anchor, Avatar, Drawer, NavLink, Stepper } from '@mantine/core';
+import { Box, Title, Text, Tabs, Flex, Button, Anchor, Avatar, Drawer, NavLink } from '@mantine/core';
 import LiveChannelsTab from '../../components/LiveChannelsTab';
 import ClipsTab from '../../components/ClipsTab';
 import { config } from '../../config';
@@ -11,6 +11,9 @@ import { useAuth } from '../../context/AuthContext/useAuth';
 import { GiHamburgerMenu } from 'react-icons/all';
 import AdminTab from '../../components/AdminTab';
 import { useTournamentContext } from '../../context/TournamentContext/useTournamentContext';
+import RouletteTab from '../../components/RouletteTab';
+import WinHistory from '../../components/WinHistory';
+import SponsorImage from '../../components/Sponsor';
 
 type TabsValues = 'live' | 'history' | 'ruleta' | 'clips' | 'admin';
 const tabs:Array<{ value: TabsValues, display: string, adminOnly?: boolean }> = [
@@ -22,7 +25,7 @@ const tabs:Array<{ value: TabsValues, display: string, adminOnly?: boolean }> = 
 ];
 
 const Tournament = () => {
-    const { activeRound } = useTournamentContext();
+    const { tournamentState: { activeRound } } = useTournamentContext();
     const [ selectedTab, setSelectedTab ] = useState<TabsValues>('live');
     const [ isMenuOpened, setIsMenuOpened ] = useState<boolean>(false);
     const { auth, logOut } = useAuth();
@@ -34,12 +37,11 @@ const Tournament = () => {
         setSelectedTab(value);
         setIsMenuOpened(false);
     };
-    console.log(activeRound);
 
     return (
         <Box>
             <Drawer opened={isMenuOpened} onClose={() => {setIsMenuOpened(false);}} title="">
-            Hello world
+            Stream Tech Royale
                 {tabs.map(({value, display}) => (
                     <NavLink key={value} onClick={() => { onMenuItemClick(value); }} label={display} />
                 ))}
@@ -54,15 +56,16 @@ const Tournament = () => {
                 <Box p="2em">
                     <Box>
                         <Button onClick={() => { setIsMenuOpened(true); }} display={{ sm: 'none', base: 'flex' }} mr="0.5em" compact variant="outline"><GiHamburgerMenu/></Button>
-                        <Text size="2em" display="inline" weight="bold">Stream Tech Royale</Text>
-                        <Text ml="md" size="2em" display="inline">Fortnite edition</Text>
+                        <Text size="1.5em" display="inline" weight="bold">Stream Tech Royale</Text>
+                        <Text ml="md" size="1em" display="inline">Fortnite edition</Text>
                     </Box>
 
-                    {activeRound && (
-                        <>
-                            <Title order={2}>Ronda {activeRound.id} ({activeRound.type === 'SOLO' ? 'Individual' : 'Por equipos'}) - {activeRound.limitation}</Title>
-                        </>
-                    )}
+                    <Title size="1.2em" order={2}>Ronda {activeRound.id} ({activeRound.type === 'SOLO' ? 'Individual' : 'Por equipos'}) - {activeRound.limitation}</Title>
+                    <Flex mt="md" gap="1em" align="center">
+                        <SponsorImage maw="10em" sponsor='Donweb Cloud' />
+                        <SponsorImage maw="10em" sponsor='Codealo' />
+                        <SponsorImage maw="10em" sponsor='Devtalles' />
+                    </Flex>
                 </Box>
 
                 <Box ml="auto" mr="1em"
@@ -106,11 +109,11 @@ const Tournament = () => {
                 </Tabs.Panel>
 
                 <Tabs.Panel p="2em" value="history">
-                history
+                    <WinHistory />
                 </Tabs.Panel>
 
                 <Tabs.Panel p="2em" value="ruleta">
-                ruleta
+                    <RouletteTab />
                 </Tabs.Panel>
 
                 <Tabs.Panel p="2em" value="clips">

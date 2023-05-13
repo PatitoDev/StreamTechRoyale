@@ -2,6 +2,16 @@ import { UserRepresentation } from '@streamtechroyale/models';
 import Tables from './dbClient/tables';
 import dbClient from './dbClient';
 
+const getAllForCreator = async (creatorId: string) => {
+    const result = await dbClient.query({
+        TableName: Tables.userRepresentation,
+        KeyConditions: {
+            creatorId: { ComparisonOperator: 'EQ', AttributeValueList: [creatorId] }
+        }
+    });
+    return (result.Items) as Array<UserRepresentation>;
+};
+
 const getByUser = async (userId: string) => {
     const result = await dbClient.query({
         TableName: Tables.userRepresentation,
@@ -55,6 +65,7 @@ const deleteAll = async () => {
 };
 
 export const userRepresentationRepository = {
+    getAllForCreator,
     getByCreator,
     getByUser,
     getAll,

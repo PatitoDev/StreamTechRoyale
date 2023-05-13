@@ -3,9 +3,12 @@ import { WsContextProvider } from './context/wsContext';
 import Tournament from './pages/Tournament';
 import { TournamentContextProvider } from './context/TournamentContext';
 import { AuthProvider } from './context/AuthContext';
+import { RouterProvider, createBrowserRouter } from 'react-router-dom';
+import Overlay from './pages/Overlay';
+import PreTournament from './pages/PreTournament';
 
 const App = () => (
-    <MantineProvider theme={{
+    <MantineProvider withGlobalStyles withNormalizeCSS theme={{
         primaryColor: 'teal',
         components: {
             Tabs: {
@@ -23,14 +26,25 @@ const App = () => (
             }
         }
     }} >
+
         <AuthProvider>
             <WsContextProvider>
                 <TournamentContextProvider>
-                    <Tournament /> {/*🦆*/}
+                    <Routes /> {/*🦆*/}
                 </TournamentContextProvider>
             </WsContextProvider>
         </AuthProvider>
     </MantineProvider>
 );
+
+const Routes = () =>  {
+    const router = createBrowserRouter([
+        { path: '/', element: <PreTournament /> },
+        { path: '/test', element: <Tournament /> },
+        { path: '/overlay', element: <Overlay /> }
+    ]);
+
+    return (<RouterProvider router={router} />);
+};
 
 export default App;

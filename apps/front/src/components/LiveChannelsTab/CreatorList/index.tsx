@@ -25,10 +25,10 @@ const whereCreatorHasValue = (creator:CreatorWithLiveIndicator, value: string) =
 };
 
 const CreatorList = ({ onSelectedCreatorChange, selectedCreator }:CreatorListProps) => {
-    const { activeRound } = useTournamentContext();
+    const { tournamentState } = useTournamentContext();
     const { creators } = useTournamentContext();
     const [searchValue, setSearchValue] = useState<string>('');
-    const isTeam = activeRound?.type === 'TEAM';
+    const isTeam = tournamentState.activeRound.type === 'TEAM';
 
     const creatorsPostSearch = useMemo(() => creators
         .filter(creator => ( whereCreatorHasValue(creator, searchValue) ))
@@ -52,8 +52,6 @@ const CreatorList = ({ onSelectedCreatorChange, selectedCreator }:CreatorListPro
         teams.filter(team => team.members.some((member) => whereCreatorHasValue(member, searchValue)))
     ), [teams, searchValue]);
 
-    console.log(teams);
-
     const memberPagination = usePagination(creatorsPostSearch, ITEMS_PER_PAGE);
     const teamPagination = usePagination(teamsFiltered, 3);
 
@@ -71,7 +69,7 @@ const CreatorList = ({ onSelectedCreatorChange, selectedCreator }:CreatorListPro
                 base: 'auto',
                 sm: 'initial'
             }}
-            px="0.5em" direction="column" gap="md" sx={{ overflow: 'auto', minWidth: '373px', width: '373px' }}>
+            direction="column" gap="md" sx={{ overflow: 'auto', minWidth: '373px', width: '373px' }}>
             <TextInput 
                 label="Buscar"
                 value={searchValue}
@@ -80,7 +78,10 @@ const CreatorList = ({ onSelectedCreatorChange, selectedCreator }:CreatorListPro
                     setSearchValue(e.target.value);
                 }}
             />
-            { !isTeam && !memberPagination.itemsToDisplay.length && (
+            { !creators.length && !isTeam && !memberPagination.itemsToDisplay.length && (
+                <Text align="center" weight="bold">Esperando que empieze la partida</Text>
+            )}
+            { !!creators.length && !isTeam && !memberPagination.itemsToDisplay.length && (
                 <Text align="center" weight="bold">Creador no fue encontrado</Text>
             )}
             { !isTeam && memberPagination.itemsToDisplay.map((item) => (
@@ -88,9 +89,9 @@ const CreatorList = ({ onSelectedCreatorChange, selectedCreator }:CreatorListPro
                     key={item.id} 
                     selected={item.id === selectedCreator?.id} 
                     creator={item} 
-                    onCreatorClick={item.twitch ? () => {
+                    onCreatorClick={() => {
                         onSelectedCreatorChange(item);
-                    } : undefined} />
+                    }} />
             )) }
 
             { isTeam && !teamPagination.itemsToDisplay.length && (
@@ -103,7 +104,9 @@ const CreatorList = ({ onSelectedCreatorChange, selectedCreator }:CreatorListPro
                     key={team.teamId} creators={team.members} teamId={team.teamId} />
             ))}
 
-            <Pagination mx="auto" total={paginationData.total} onChange={paginationData.onChange} value={paginationData.page} />
+            {paginationData.total > 1 && (
+                <Pagination mx="auto" total={paginationData.total} onChange={paginationData.onChange} value={paginationData.page} />
+            )}
         </Flex>
     );
 };

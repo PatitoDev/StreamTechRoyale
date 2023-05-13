@@ -6,4 +6,5 @@ jspm_packages
 .serverless
 
 **/migrations/creator.ts
+**/migrations/prizes.ts
 **/secrets/secrets.ts
