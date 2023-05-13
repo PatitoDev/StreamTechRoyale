@@ -21,7 +21,7 @@ const Overlay = () => {
     }, []);
 
     return (
-        <Transition transition="slide-down" mounted={true} >
+        <Transition transition="slide-down" mounted={isOpen} >
             {((styles) => (
                 <Paper m="md" p="lg" w="28em" h={prizeWon?.prize.sponsor ? '13em' : '9em'} style={styles} shadow='lg' bg="white">
                     {prizeWon && (
