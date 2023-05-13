@@ -8,7 +8,7 @@ import { Mapper } from './mapper';
 import { wsServer } from './ws';
 
 const PORT = 8090;
-const CLIP_INTERVAL = 10;
+const CLIP_INTERVAL = 60 * 5;
 
 const app = expressws(express()).app;
 app.use(cors());

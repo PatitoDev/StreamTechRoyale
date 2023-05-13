@@ -15,7 +15,6 @@ app.get('/me/likedClips', wrap(async (req, res) => {
     res.send(JSON.stringify(result));
 }));
 
-// TODO - User like validation
 app.post('/me/clip/:clipId/like', wrap(async (req, res) => {
     const { id: userId } = await Authentication.validate(req);
     const { clipId } = req.params;
