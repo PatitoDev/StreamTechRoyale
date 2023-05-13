@@ -1,8 +1,8 @@
 import { CreatorDto, Clip, UserDto, UserRepresentation, Round, ApiException, NotFoundException, AuthorizationException, AuthenticationException, BadRequestException, RoullettePrize, Creator, TournamentState, StateChangeRequest, EndRoundRequest, RoullettePrizeDto, RoullettePrizeResponse, RoulletteRestriction, UserClipLiked } from '@streamtechroyale/models';
 
 
-const API_URL = 'http://localhost:8090/';
-//const API_URL = 'https://api.streamtechroyale.com/';
+//const API_URL = 'http://localhost:8090/';
+const API_URL = 'https://api.streamtechroyale.com/';
 
 export interface ApiResponse<T = null> {
     data?: T,
