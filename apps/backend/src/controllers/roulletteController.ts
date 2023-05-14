@@ -9,10 +9,10 @@ import { wsServer } from '../ws';
 const app = express.Router();
 
 export const probability: Record<ProbabilityCategory, number> = {
-    A: 0.02,
-    B: 8.98,
-    C: 32,
-    D: 60,
+    A: 5,
+    B: 15,
+    C: 30,
+    D: 50,
 };
 
 const getDisplayPrizes = async () => {
