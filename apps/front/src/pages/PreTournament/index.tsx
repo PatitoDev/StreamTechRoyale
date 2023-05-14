@@ -61,12 +61,12 @@ const PreTournament = () => {
                 <Stack align="center">
                     <Image alt="Stream Tech Royale" src='logo.png' width={150} />
                     <Title>Stream Tech Royale</Title>
-                    <Text fz="xl">Fortnite edition</Text>
+                    <Text fz="xl">?? edition</Text>
                 </Stack>
 
                 <Stack align="center" spacing={0}>
-                    <Text c="dark" fz="xl">{dateParsed}</Text>
-                    <Button mt="md" size="lg" target="_blank" component="a" href={FORM_LINK} radius="md" variant="outline">
+                    <Text c="dark" fz="xl">Proximo torneo TBC</Text>
+                    <Button disabled mt="md" size="lg" target="_blank" component="a" href={FORM_LINK} radius="md" variant="outline">
                     UNIRSE
                     </Button>
                 </Stack>
