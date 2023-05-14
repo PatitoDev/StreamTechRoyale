@@ -6,6 +6,7 @@ import { AuthProvider } from './context/AuthContext';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import Overlay from './pages/Overlay';
 import PreTournament from './pages/PreTournament';
+import History from './pages/History';
 
 const App = () => (
     <MantineProvider withGlobalStyles withNormalizeCSS theme={{
@@ -41,7 +42,8 @@ const Routes = () =>  {
     const router = createBrowserRouter([
         { path: '/', element: <PreTournament /> },
         //{ path: '/', element: <Tournament /> },
-        { path: '/overlay', element: <Overlay /> }
+        { path: '/overlay', element: <Overlay /> },
+        { path: '/history', element: <History /> }
     ]);
 
     return (<RouterProvider router={router} />);

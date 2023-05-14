@@ -6,6 +6,7 @@ import { loadFull } from 'tsparticles';
 import Particles from 'react-tsparticles';
 import { particleOptions } from '../../particlesOptions';
 import { useTournamentContext } from '../../context/TournamentContext/useTournamentContext';
+import NavBar from '../../components/NavBar';
 
 const FORM_LINK = 'https://forms.gle/Kj2JRGjRrcS8Vb7c9';
 const ITEMS_PER_PAGE = 12;
@@ -54,6 +55,7 @@ const PreTournament = () => {
                 height="100%"
                 options={particleOptions}
             />
+            <NavBar />
             <Stack align="center" spacing={125} mt={{
                 base: 80,
                 md: 150,
