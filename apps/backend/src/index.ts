@@ -107,9 +107,11 @@ const fetchClips = async () => {
     }
 };
 
+/*
 setInterval(() => {
     fetchClips();
 }, CLIP_INTERVAL * 1000);
+*/
 
 app.use(errorHandler);
 
